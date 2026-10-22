@@ -1,7 +1,8 @@
 """Execute versioned task/meta Python and use the shared DREAM Codex transport.
 
 This is a restricted portable variant, not the native Docker/tool environment.
-One agent invocation permits exactly one model episode. The changed MetaAgent
+One task invocation permits zero or one model episode; meta updates use one.
+An evaluated solver may be returned directly without calling a model. The changed MetaAgent
 is executed when producing its descendants. Frozen host code supplies observed
 context, validates outputs and evaluates geometry outside the agent process.
 The AST checks and subprocess boundary are not a hostile-code security sandbox.
@@ -153,6 +154,17 @@ def _invoke(role, bundle, context, call_dir):
     context = copy.deepcopy(context)
     context['domain'] = 'blender_layout'
     first = _worker(role, bundle[role], context, [])
+    if role == 'task' and first['status'] == 'completed' and first.get('request_hashes') == []:
+        result = first.get('result')
+        if not isinstance(result, (list, tuple)) or len(result) != 2 or not isinstance(result[0], str) or result[1] != []:
+            raise ValueError('Zero-call TaskAgent must return (program_source, empty history)')
+        if len(result[0].encode('utf-8')) > MAX_SOURCE_BYTES:
+            raise ValueError('Source exceeds 100 KB')
+        compile(ast.parse(result[0]), 'program.py', 'exec')
+        write_json(call_dir / 'completed.json', {'role': role, 'request_hashes': [],
+                    'executed_source_sha256': digest(bundle[role]), 'model_episodes': 0})
+        return {'program': result[0], 'proposal': 'TaskAgent returned solver source directly without a model call.',
+                'model_episodes': 0}
     if first['status'] != 'request' or len(first.get('request_hashes', [])) != 1:
         raise ValueError('One model request is required per invocation')
     if first['request'].get('model') != 'fixed-host-model':
@@ -175,7 +187,8 @@ def _invoke(role, bundle, context, call_dir):
         for name in ('task', 'meta'):
             validate_source(data[name + '_agent'], name)
     write_json(call_dir / 'completed.json', {'role': role, 'request_hashes': first['request_hashes'],
-                                           'executed_source_sha256': digest(bundle[role])})
+                                           'executed_source_sha256': digest(bundle[role]), 'model_episodes': 1})
+    data['model_episodes'] = 1
     return data
 
 

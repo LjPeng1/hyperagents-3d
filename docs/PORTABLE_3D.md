@@ -87,6 +87,8 @@ MetaAgent.forward(repo_path, eval_path, iterations_left=None)
 
 每次角色执行最多请求 **一次**模型调用。worker 第一次执行到 `chat_with_agent` 时返回请求；host 调用模型后，将完整 history 重放给同一源码。请求哈希必须一致，第二次模型调用被拒绝。原始 meta 的 `tools_available='all'` 在此只作为兼容参数接收，不会启动 bash、编辑器或任何原生工具。
 
+TaskAgent 也可以直接返回求解器源码与空 history，使用 **零次**模型调用；宿主仍执行开发集评测，并记录 `model_episodes=0`。这样的调用可能只复用旧源码，不代表产生了新解。Meta 更新目前须请求一次模型以输出两个子文件。首轮真实试验发现了宿主错误地拒绝零调用的契约问题；修复未改变模型提示，未重复任何付费请求，原失败与协议修正均保留在示例的 `diagnostics/` 和 `amendments.json` 中。
+
 | 可变化 | 冻结 |
 |---|---|
 | `task_agent.py` 的完整实现 | 3D 数据分割和外部几何评分器 |

@@ -4,7 +4,7 @@
 
 ## 当前判断
 
-已检查 `portable/runtime.py`、`portable/worker.py`、`portable/experiment.py`、共享 3D 任务及相关测试，并追踪调用的 DREAM orchestration 和学习逻辑。**受限执行链条可以真实继承并运行 task/meta 代码；不是只把“修改后的 meta”保存在文件里。** 全部 35 项 portable 离线测试通过，没有调用模型。
+已检查 `portable/runtime.py`、`portable/worker.py`、`portable/experiment.py`、共享 3D 任务及相关测试，并追踪调用的 DREAM orchestration 和学习逻辑。**受限执行链条可以真实继承并运行 task/meta 代码；不是只把“修改后的 meta”保存在文件里。** 初次审查的 35 项 portable 离线测试通过；首次真实运行暴露了零调用契约矛盾，修正后 36 项通过，见下文补记。审计和这些测试没有调用模型。
 
 对当前明确披露的有界机制试验，未发现阻断运行的实现错误。**但本版本采用无条件线性继承，省略官方 DGM-H 的 archive 父节点搜索，不能作为论文完整方法的性能复现。** 是否能执行一遍，与是否构成足以评价 RSI 的实验，是不同结论。
 
@@ -18,7 +18,7 @@
 | 运行环境 | Docker、bash/editor 工具、完整依赖 | Python 子进程重放、限制导入与 AST、固定结构化输出；不执行模型工具 |
 | 上下文 | agent 自己读取代码和评估文件 | 宿主附加完整授权上下文，附源码和提示哈希；超限失败，不静默截断 |
 | 3D 评估 | 原仓库没有本任务 | 复制 DREAM 迁移版的同一 `blender_layout` 任务，比较同一解析几何指标 |
-| 调用预算 | 改进过程可包含多轮工具/模型交互 | 每次 task 或 meta invocation 必须且最多产生一个模型 episode |
+| 调用预算 | 改进过程可包含多轮工具/模型交互 | 每次 task invocation 允许零或一个模型 episode；meta update 必须产生一个，零调用修正见补记 |
 
 官方依据：[task_agent.py](https://github.com/facebookresearch/HyperAgents/blob/59a68f672dfb92c74aeb7e61535d776fb36e172d/task_agent.py)、[meta_agent.py](https://github.com/facebookresearch/HyperAgents/blob/59a68f672dfb92c74aeb7e61535d776fb36e172d/meta_agent.py)、[generate_loop.py](https://github.com/facebookresearch/HyperAgents/blob/59a68f672dfb92c74aeb7e61535d776fb36e172d/generate_loop.py)、[run_meta_agent.py](https://github.com/facebookresearch/HyperAgents/blob/59a68f672dfb92c74aeb7e61535d776fb36e172d/run_meta_agent.py)。
 
@@ -27,7 +27,7 @@
 ## 已核实的执行语义
 
 1. **真正执行源码。** worker 校验源码后在独立命名空间定义类并调用 `forward`。源码不是仅作为 LLM prompt 的附件。runtime 还会把执行产生的请求交给固定 transport。
-2. **重放不额外收费。** 第一次执行在模型调用处暂停；宿主只调用一次 `_structured_call`；第二次执行注入该响应并检查请求哈希一致。worker 自身不连接模型。
+2. **重放不额外收费。** 需要模型时，第一次执行在调用处暂停；宿主只调用一次 `_structured_call`；第二次执行注入该响应并检查请求哈希一致。TaskAgent 也可以直接返回源码和空 history，此时没有模型调用或响应重放。worker 自身不连接模型。
 3. **TaskAgent 接收的是代码。** 宿主将 `program` 包装进 `<json>{"response": ...}</json>`，原 TaskAgent 可解析。runtime 采用它实际返回的源码，离线测试验证后处理修改确实保留。
 4. **改后的 meta 会执行。** `improve` 产生新 bundle；后续 `_invoke` 执行其 meta 源码。测试通过改变请求文字，验证下一代使用新实现和新源码哈希。
 5. **固定 meta 语义正确。** `freeze_meta=True` 保留传入 bundle 的 meta，而丢弃提议的新 meta。runner 从初始 bundle 开始，每代检查 child 的 meta 不变；最终报告再次验证第二次更新执行的 meta 哈希。
@@ -67,3 +67,17 @@ python -m pytest tests_portable -q --basetemp workspace/review-pytest-full
 - **原始方法保真度：有限。** 两次 meta 更新只够检查“修改的 meta 是否在下一代被执行”，不足以估计长期进步。线性继承且不按开发质量挑选 meta，DREAM 则按 replay 质量选择策略；这个差异不允许对两篇论文作优劣归因。
 
 这些检查支持开展有界的真实可行性试验；单次试验不能支持方法优越性、meta 跨任务迁移或普遍 RSI 结论。若目标升级为 DGM-H 基线，应先恢复 agent archive 与父节点选择，再加入多次独立重复及共同 task 起点的 meta 迁移对照。
+
+## 首次真实运行后的零调用契约修正
+
+2026-10-23，真实 `hyper_adaptive/update1` 返回的 TaskAgent 检测到开发集已达到满分，于是直接返回上下文中的已评估通用 solver 和空 history。冻结提示中的原始 API 写的是每个 `forward` **at most ONCE**，但宿主实现要求恰好一次请求，因此 `hyper_adaptive_online1` 在进入模型 transport 前失败。这是实现与已提供契约的矛盾，初次 35 项 mock 测试未覆盖该分支；不能把它记为模型失败或额外模型调用。
+
+独立复查使用保存的真实 child 和原开发历史调用无网络 worker，得到 `status=completed`、`request_hashes=[]`、空 history。返回程序 SHA-256 为 `b3d1aa5dcb2f252dad16d5dacd562fdf88a5f3d2e55c16d670c76adc685016ff`，与原 best 完全一致。原失败 invocation 目录只有 `started.json` 和 `input_bundle.json`，没有 `logs/`；对应 journal 显示失败发生在约 0.225 秒内。确认未调用模型依赖执行路径、worker 结果及文件证据，不能仅凭没有 usage 推断免费。
+
+修正只允许 **TaskAgent 的已完成、零请求执行**返回 `(program_source, [])`；仍检查源码大小和 Python AST，记录 `model_episodes=0`，由原 evaluator 重新评估其输出。MetaAgent 仍必须请求一次模型；一请求上限、固定 meta 控制和两 Hyper arm 的规则相同，总上限仍为 22，不把省下的调用重新分配为额外尝试。零调用本身不是新的付费 episode，也不生成虚假的模型 usage。独立负例检查确认伪造 history、无效语法、超过 100 KB 的源码和零调用 meta 均被拒绝，且没有进入模型 transport。
+
+为避免中途改变提示影响两组可比性，最终保留 `API_DESCRIPTION` 的开跑前原文。以 AST 读取 `git show ec82288:portable/runtime.py` 的字符串常量，确认与修复后字符串逐字相同，SHA-256 为 `bee79b81d1145e141208258c5ac7d9dd2eb04e78154dcf2acd926d726657e5f5`。修复改变宿主接受逻辑和记账，没有改变模型所见的 API 提示。
+
+原失败 journal、invocation、原 protocol 和离线 worker 验证保留在 `workspace/comparison-20261023/diagnostics/zero-call-contract/`。`amendments.json` 记录修改理由、前后 runtime 哈希、仅重新开放的已证实未付费步骤、`repeated_paid_episodes=0`、提示不变和预算上限不变。已完成的付费 update1 直接复用，没有重付费生成 child。这个运行必须描述为有公开工程修正的 pilot，不能表述为完全预注册、从未修订的效果实验。
+
+修复后的独立全套离线回归：**36 passed，12.02 秒**，路径 `workspace/review-zero-call-regression`。另有四项上述临时负例检查。审计者没有运行付费模型请求。当前复用行为仅说明在已有开发集满分 solver 时省下生成调用，不能视作新候选的独立发现、准确率提升或 meta 自改进有效性的证据；仍需报告实际调用量和相同源码的重复评估。

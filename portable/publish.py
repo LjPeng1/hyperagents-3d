@@ -54,6 +54,19 @@ def publish(source, destination):
     # Public per-episode accounting omits command lines, stdout and thread ids.
     report['usage']['runs'] = [{k: row.get(k) for k in ('arm', 'returncode', 'timed_out', 'error', 'duration_sec', 'usage')}
                                 for row in report['usage']['runs']]
+    amendments = source / 'amendments.json'
+    if amendments.exists():
+        report['engineering_amendments'] = clean(read(amendments))
+        write(destination / 'amendments.json', clean(read(amendments)))
+        diagnostic = source / 'diagnostics' / 'zero-call-contract'
+        for name in ('original_protocol.json', 'journal.json', 'worker_verification.json'):
+            write(destination / 'diagnostics' / name, clean(read(diagnostic / name)))
+    report['task_invocations'] = {}
+    for arm in ('hyper_adaptive', 'hyper_fixed'):
+        completed = [read(p) for p in (source / arm / 'calls').glob('online*/completed.json')]
+        report['task_invocations'][arm] = {'completed': len(completed),
+            'zero_model_calls': sum(c.get('model_episodes') == 0 for c in completed),
+            'with_model_call': sum(c.get('model_episodes') == 1 for c in completed)}
     write(destination / 'report.json', clean(report))
     write(destination / 'protocol.json', clean(read(source / 'protocol.json')))
     write(destination / 'initial_bundle.json', read(source / 'initial_bundle.json'))

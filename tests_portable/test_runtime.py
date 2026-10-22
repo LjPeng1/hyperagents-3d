@@ -49,3 +49,19 @@ def test_task_files_identical_to_shared_dream_snapshot():
         pytest.skip('Sibling DREAM checkout unavailable; manifest checked by runner')
     for name in ('problem.txt', 'init_program.py', 'scenes.py', 'worker.py', 'evaluator.py', 'export.py'):
         assert (runtime.ROOT / 'portable' / 'task' / name).read_bytes() == (reference / name).read_bytes()
+
+
+def test_zero_call_task_is_evaluated_without_fabricated_model_usage(tmp_path, monkeypatch):
+    bundle = runtime.initial_bundle()
+    bundle['task'] = '''from agent.base_agent import AgentSystem
+class TaskAgent(AgentSystem):
+    def forward(self, inputs):
+        return inputs['program'], []
+'''
+    def unexpected(*args):
+        pytest.fail('A completed zero-call task must not request a model episode')
+    monkeypatch.setattr(runtime, '_structured_call', unexpected)
+    result = runtime.generate(bundle, {'program': SOLVER}, tmp_path / 'zero')
+    assert result['program'] == SOLVER
+    assert result['model_episodes'] == 0
+    assert not (tmp_path / 'zero' / 'logs').exists()
