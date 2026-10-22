@@ -1,0 +1,4 @@
+# Preserve exact task bytes copied from the frozen DREAM comparison snapshot.
+portable/task/*.py -text
+portable/task/*.txt -text
+examples/**/*.py -text

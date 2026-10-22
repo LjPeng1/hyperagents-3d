@@ -1,2 +1,7 @@
 outputs/
 outputs_os/
+workspace/
+__pycache__/
+*.pyc
+.pytest_cache/
+portable/task/.runtime/

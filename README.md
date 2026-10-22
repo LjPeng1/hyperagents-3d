@@ -1,3 +1,21 @@
+# HyperAgents 3D research fork
+
+This fork adds a **restricted portable execution variant** for a controlled
+comparison with [DREAM-RSI 3D](https://github.com/LjPeng1/dream-rsi-3d).
+It preserves executable task/meta inheritance while fixing the model transport,
+geometry evaluator and budget. It is not a reproduction of the full native
+DGM-H Docker/tool environment, and it does not establish universal RSI gains.
+
+- [Run the portable 3D comparison](docs/PORTABLE_3D.md)
+- [Paper evidence audit (Chinese)](docs/PAPER_AUDIT_ZH.md)
+- [Code and migration audit (Chinese)](docs/CODE_AUDIT_ZH.md)
+- [Third-party attribution](THIRD_PARTY.md)
+
+The original project documentation follows. The upstream research code remains
+under CC BY-NC-SA 4.0, including its non-commercial restriction.
+
+---
+
 <div align="center">
 
 <!-- Logo/Banner placeholder - uncomment and add your image -->
