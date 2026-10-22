@@ -1,0 +1,18 @@
+# Conflict-directed relation relaxation
+
+## Complete supplied history
+I reviewed all seven supplied proposal files in full: the top-level baseline, both historical baseline copies, and attempts 00 and 01 from both explore_b0 and explore_b1. I also reviewed every supplied source and matching score snapshot. No error logs were supplied.
+
+All baseline/init copies use identifier-grid placement and parent-centered children. They report combined score 0.6738452380952381, strict success 0, support 1.0, collision freedom 0.9583333333333334, and relation satisfaction 0.21666666666666667. The source establishes structural causes: relations are ignored and siblings can share a center.
+
+explore_b0/attempt_00 uses difference constraints, collision branching, and angular proximity rectangles; its measured combined score and strict success are both 1.0. explore_b0/attempt_01 adds continuous disk projection and reports the same outcomes. explore_b1/attempt_00 uses centered graph solutions, disk projection, and several greedy directional subsets; it also reports both outcomes as 1.0. explore_b1/attempt_01 adds cross-axis proximity propagation and constrained-first collision branching, again reporting both as 1.0. Their reported evaluation times are approximately 0.178, 0.202, 0.201, and 0.206 seconds respectively. These are analytic AABB observations, with Blender verification false. None is an observed failed solver requiring a bug retry.
+
+## New mechanism
+The successful attempts cluster around adding geometric constraints, with unchanged observed outcomes. This proposal instead changes how contradictory requests are negotiated: attach relation provenance to graph edges, extract an actual positive-cycle conflict when graph relaxation fails, and branch on retracting each implicated relation. Retraction removes every edge belonging to that relation, including proximity refinements. This replaces irrevocable greedy subset selection with explicit conflict-directed exploration of alternatives.
+
+The implementation combines that new relation-selection mechanism with the previously successful support-height construction, difference constraints, collision-separation branching, and proximity rectangles. All relations remain part of candidate scoring even after retraction. Geometrically infeasible states never supply coordinates. Room and support constraints remain mandatory during search; collision choices remain branch-specific. A bounded queue search retains its best actual geometric candidate, including partially satisfied arrangements.
+
+## Expected benefit and risk
+Conflict-directed retraction may recover better compromises when relation cycles, room limits, or proximity requirements conflict, without enumerating all relation subsets in advance. This is distinct from the historical fixed greedy subset seeds and proximity-propagation refinements. The supplied successful scenes do not establish a benefit for this change.
+
+Risks include exponential conflict branching, finite proximity-angle coverage, numerical sensitivity in cycle extraction, and search truncation. The implementation bounds generated states and expansions, uses only the standard library, and has no scene-specific identifiers or saved coordinates. Impossible room/support geometry receives a best-effort contained fallback. The source has not been executed or evaluated; no performance improvement is claimed.

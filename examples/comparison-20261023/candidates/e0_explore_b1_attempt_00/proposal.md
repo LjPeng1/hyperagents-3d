@@ -1,0 +1,9 @@
+# Constraint graphs with collision branching
+
+The complete supplied history contains one proposal, baseline/proposal.md, and two identical baseline source/score snapshots. Both report combined score 0.6738452380952381, support 1.0, collision freedom 0.9583333333333334, relation satisfaction 0.21666666666666667, and zero strict successes. No other historical proposals or failure logs are supplied.
+
+The baseline code exposes two concrete limitations: its ID-sorted grid never reads relations, and every supported object is centered on its parent, causing the reported item_0/item_2 overlaps. These are limitations of the placement mechanism rather than evidence of a failed constraint-solving approach.
+
+Replace the grid with two difference-constraint graphs. Encode room bounds, parent-footprint containment, and left_of relations as linear inequalities, while computing support heights exactly. Obtain feasible coordinates by longest-path relaxation and center them using forward and reverse solutions. Resolve collisions through bounded best-first branching over the four possible horizontal separating inequalities. Each branch can move an entire constrained arrangement instead of moving objects independently. Try convex projection for near relations while retaining the original linearly feasible candidate. If directional constraints conflict, explore several greedily feasible subsets and retain the best geometric candidate.
+
+This is structurally different from the only supplied historical mechanism. Expected benefits are relation-aware ordering and explicit sibling packing while preserving support. Risks include bounded search missing a packing, conflicting relations, and slow convergence of proximity projection. The implementation uses only the standard library, has bounded search and projection work, and contains no scene-specific IDs or saved layouts. It has not been executed or evaluated.

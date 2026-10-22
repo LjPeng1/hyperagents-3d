@@ -1,0 +1,20 @@
+# Score-aware relaxation of geometric obligations
+
+## Complete supplied history
+I reviewed all eight supplied proposal files in full: attempt_00/proposal.md; baseline/proposal.md; and the baseline, attempt_00, and attempt_01 proposals in each historical branch. I also reviewed all eleven supplied source/score pairs, including initialization copies. No error logs were supplied.
+
+All six baseline/init snapshots use identifier-grid placement and parent-centered children. Each reports combined score 0.6738452380952381, strict success 0, support 1.0, collision freedom 0.9583333333333334, and relation satisfaction 0.21666666666666667. Their code ignores relations and places siblings at the same center. These are structural limitations, not an execution failure worth retrying.
+
+Historical explore_b0/attempt_00 introduces difference constraints, collision branching, and angular proximity rectangles; attempt_01 adds continuous disk projection. Historical explore_b1/attempt_00 uses centered graph coordinates, disk projection, and greedy directional subsets; attempt_01 adds cross-axis proximity propagation and constrained-first branching. Each reports combined score and strict success 1.0. Their evaluation times are approximately 0.178, 0.202, 0.201, and 0.206 seconds, respectively. The current sibling attempt_00 adds relation-owner cycle extraction and relation retraction; it also reports combined score and strict success 1.0, at approximately 0.216 seconds. All these observations use analytic AABB evaluation, with Blender verification false. There is no measured failed graph solver to repair, and the repeated outcomes do not establish gains from further geometric refinements.
+
+## New mechanism
+Extend conflict-directed search from relation selection to explicit selection of geometric obligations. Give each support-footprint obligation and each collision pair its own owner, alongside relation owners. A positive graph cycle can retract any implicated optional owner. Retracting a support owner removes both horizontal footprint constraints for that object. Retracting a collision owner removes that pair's separating commitment and records a waiver, so later search can resolve other collisions instead of repeatedly branching on an unavoidable pair.
+
+Every unresolved collision offers four separating branches and a fifth waiver branch. Room bounds remain mandatory. Heights remain determined by the immutable support hierarchy, followed by room clamping for best-effort output. All actual support, collisions, and relations are scored from coordinates regardless of which obligations were waived. A waiver is permission to stop enforcing an obligation, not a declaration that it is violated or satisfied.
+
+This is a new combination of the successful graph/conflict machinery with score-aware soft geometry. Previous implementations made support footprints mandatory and kept resolving collisions without an explicit skip-and-continue state. Relation-only retraction cannot explore the same tradeoffs. The change targets cases where accepting one overlap or one unsupported footprint permits many other constraints to be satisfied; it does not repeat proximity projection or propagation.
+
+## Expected benefit and risk
+Explicit geometry waivers may improve partial layouts when complete geometric feasibility is impossible or inaccessible within the search budget. They also allow conflicting packing commitments to be removed while continuing useful work elsewhere. The supplied results do not demonstrate this benefit.
+
+Risks include a larger search space, inaccurate heuristic branch priorities, finite angular proximity coverage, and increased runtime. Search has fixed state and expansion limits, uses only the standard library, and scores room-clamped candidates independently of their enforcement state. Impossible object-to-room dimensions cannot be repaired without changing immutable input. This source has not been executed or evaluated; no correctness, runtime, or score improvement is claimed.

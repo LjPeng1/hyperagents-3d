@@ -1,0 +1,11 @@
+{
+  "status": "request",
+  "request": {
+    "instruction": "Modify any part of the codebase at `version`.",
+    "model": "fixed-host-model",
+    "msg_history": []
+  },
+  "request_hashes": [
+    "5048f5ec6077e8e3ed2e5f53dc5d8ed73413e2a98ddadb8b3d83bb9cec08e121"
+  ]
+}

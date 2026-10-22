@@ -1,0 +1,16 @@
+[
+  {
+    "created_utc": "2026-10-22T18:26:58.728414+00:00",
+    "type": "host_contract_correction",
+    "reason": "API said at most one call; host incorrectly rejected a valid zero-call TaskAgent.",
+    "scope": "Accept task return of source and empty history without a model call, for both Hyper arms.",
+    "model_prompt_contract_changed": false,
+    "old_runtime_sha256": "13644144c253716f733c1b46ae256fdc9d6dbe1464b24288ecad128a20194b9b",
+    "new_runtime_sha256": "c4b92c2bad2b193bd2ef513c5020d54a803f106554d532cd66b76da08a6e937e",
+    "reopened_step": "hyper_adaptive_online1",
+    "repeated_paid_episodes": 0,
+    "preserved_failed_record": "diagnostics/zero-call-contract/journal.json",
+    "cap_unchanged": 22,
+    "note": "Engineering pilot with disclosed amendment, not a preregistered efficacy result."
+  }
+]

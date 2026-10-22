@@ -1,0 +1,298 @@
+{
+  "id": "hyper_fixed_g1_1",
+  "program": ".\\candidates\\hyper_fixed_g1_1\\program.py",
+  "source_sha256": "b3d1aa5dcb2f252dad16d5dacd562fdf88a5f3d2e55c16d670c76adc685016ff",
+  "file_sha256": "e92d2be6010f2cf8c5ea35b0b988173b65c1e3597ff225be4dad843d19582896",
+  "proposal": "TaskAgent returned solver source directly without a model call.",
+  "dev": {
+    "combined_score": 1.0,
+    "strict_success_rate": 1.0,
+    "valid_scene_rate": 1.0,
+    "components": {
+      "support": 1.0,
+      "collision_free": 1.0,
+      "relations": 1.0
+    },
+    "scenes": [
+      {
+        "id": "dev_00",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.72,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_01",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_3",
+            "max_distance": 1.812,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_02",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_3",
+            "b": "base_2",
+            "max_distance": 1.475,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_03",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_0",
+            "max_distance": 1.442,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_04",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_1",
+            "max_distance": 1.74,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_05",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.77,
+            "satisfied": true
+          }
+        ]
+      }
+    ],
+    "split": "dev",
+    "benchmark_version": "blender-layout-v1",
+    "scene_sha256": "5f8098ef5921f2589f5f06d1640231b5b0db46017a24c6f59058fd355c05b6c2",
+    "evaluation_seconds": 0.21485759999632137,
+    "evaluation_backend": "analytic_aabb",
+    "blender_verified": false
+  }
+}

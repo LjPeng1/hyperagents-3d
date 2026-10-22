@@ -1,0 +1,298 @@
+{
+  "id": "dream_g2_explore_b0_attempt_00",
+  "program": ".\\candidates\\dream_g2_explore_b0_attempt_00\\program.py",
+  "source_sha256": "09dcb5de75e9339f3b58bf8f97e0f748431652f6f885678331f1d4577de9fee9",
+  "file_sha256": "09dcb5de75e9339f3b58bf8f97e0f748431652f6f885678331f1d4577de9fee9",
+  "proposal": "# Joint XYZ search with retractable support contacts\n\n## Complete supplied history\nI reviewed all ten supplied proposal files in full, together with all fourteen source/score pairs. These include the top-level baseline, the three historical baseline directories and their initialization copies, four iter000 attempts, and two iter001 attempts. No error logs were supplied.\n\nAll eight baseline/init snapshots use the same identifier grid and parent-centered children. Their measured combined score is 0.6738452380952381, strict success is 0, support is 1.0, collision freedom is 0.9583333333333334, and relation satisfaction is 0.21666666666666667. Their source ignores relations and gives siblings identical centers: structural limitations, not execution failures.\n\nThe six evolved attempts all report combined score and strict success of 1.0 on the six supplied development scenes. Iter000/b0/00 uses difference graphs, collision branching, and proximity rectangles; b0/01 adds disk projection. Iter000/b1/00 uses centered graph solutions, projection, and greedy relation subsets; b1/01 adds circular bound propagation. Iter001/b0/00 introduces conflict-directed relation retraction; b0/01 extends retraction to support footprints and collision obligations. Their reported evaluation times are approximately 0.178, 0.202, 0.201, 0.206, 0.216, and 0.198 seconds. All are analytic AABB evaluations with Blender verification false. No evolved attempt has an observed failure requiring a bug retry.\n\n## New mechanism\nThe history clusters around horizontal graph search with unchanged observed outcomes. Every evolved implementation computes heights before search; even the soft-geometry implementation can release only support footprints, leaving vertical positions fixed.\n\nThis proposal searches all three coordinates jointly. A support obligation owns its XY containment constraints and both inequalities defining its exact vertical contact. Floor contact is represented similarly for roots. Initially every support obligation is enforced. Positive-cycle conflicts can retract an entire support obligation, allowing its object and still-supported descendants to move vertically. Collision resolution branches over all six separating directions, plus the existing explicit overlap waiver. Thus a difficult horizontal packing can be replaced by a different vertical arrangement, with any lost support counted honestly by coordinate-based scoring. Support assignments themselves remain unchanged.\n\nThis combines successful conflict-directed soft-constraint search with a previously untried vertical degree of freedom. It is not another proximity refinement or a repeat of footprint-only relaxation. Room containment remains mandatory on all axes; all actual supports, collisions, and relations are assessed independently of enforcement state. Proximity retains the earlier rectangular branches.\n\n## Expected benefit and risk\nJoint XYZ search may find better partial layouts when accepting one broken support contact allows several collisions or relation conflicts to be resolved. Fully feasible scenes can retain every prescribed contact. The supplied measurements do not establish a benefit for this change.\n\nRisks include more branching, heuristic priorities missing useful support tradeoffs, finite proximity-angle coverage, and numerical sensitivity. Search uses fixed expansion and state budgets and only the Python standard library. Oversized objects remain intrinsically impossible to contain. This source has not been executed or evaluated; no correctness or performance improvement is claimed.",
+  "dev": {
+    "combined_score": 1.0,
+    "strict_success_rate": 1.0,
+    "valid_scene_rate": 1.0,
+    "components": {
+      "support": 1.0,
+      "collision_free": 1.0,
+      "relations": 1.0
+    },
+    "scenes": [
+      {
+        "id": "dev_00",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.72,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_01",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_3",
+            "max_distance": 1.812,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_02",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_3",
+            "b": "base_2",
+            "max_distance": 1.475,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_03",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_0",
+            "max_distance": 1.442,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_04",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_1",
+            "max_distance": 1.74,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_05",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.77,
+            "satisfied": true
+          }
+        ]
+      }
+    ],
+    "split": "dev",
+    "benchmark_version": "blender-layout-v1",
+    "scene_sha256": "5f8098ef5921f2589f5f06d1640231b5b0db46017a24c6f59058fd355c05b6c2",
+    "evaluation_seconds": 0.197018200000457,
+    "evaluation_backend": "analytic_aabb",
+    "blender_verified": false
+  }
+}

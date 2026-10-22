@@ -1,0 +1,298 @@
+{
+  "id": "e0_explore_b1_attempt_00",
+  "program": ".\\candidates\\e0_explore_b1_attempt_00\\program.py",
+  "source_sha256": "73bf6326bc527a65ca0b7c67563780d1fcd2399d44e68b929dd94f15cb4780be",
+  "file_sha256": "73bf6326bc527a65ca0b7c67563780d1fcd2399d44e68b929dd94f15cb4780be",
+  "proposal": "# Constraint graphs with collision branching\n\nThe complete supplied history contains one proposal, baseline/proposal.md, and two identical baseline source/score snapshots. Both report combined score 0.6738452380952381, support 1.0, collision freedom 0.9583333333333334, relation satisfaction 0.21666666666666667, and zero strict successes. No other historical proposals or failure logs are supplied.\n\nThe baseline code exposes two concrete limitations: its ID-sorted grid never reads relations, and every supported object is centered on its parent, causing the reported item_0/item_2 overlaps. These are limitations of the placement mechanism rather than evidence of a failed constraint-solving approach.\n\nReplace the grid with two difference-constraint graphs. Encode room bounds, parent-footprint containment, and left_of relations as linear inequalities, while computing support heights exactly. Obtain feasible coordinates by longest-path relaxation and center them using forward and reverse solutions. Resolve collisions through bounded best-first branching over the four possible horizontal separating inequalities. Each branch can move an entire constrained arrangement instead of moving objects independently. Try convex projection for near relations while retaining the original linearly feasible candidate. If directional constraints conflict, explore several greedily feasible subsets and retain the best geometric candidate.\n\nThis is structurally different from the only supplied historical mechanism. Expected benefits are relation-aware ordering and explicit sibling packing while preserving support. Risks include bounded search missing a packing, conflicting relations, and slow convergence of proximity projection. The implementation uses only the standard library, has bounded search and projection work, and contains no scene-specific IDs or saved layouts. It has not been executed or evaluated.",
+  "dev": {
+    "combined_score": 1.0,
+    "strict_success_rate": 1.0,
+    "valid_scene_rate": 1.0,
+    "components": {
+      "support": 1.0,
+      "collision_free": 1.0,
+      "relations": 1.0
+    },
+    "scenes": [
+      {
+        "id": "dev_00",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.72,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_01",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_3",
+            "max_distance": 1.812,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_02",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_3",
+            "b": "base_2",
+            "max_distance": 1.475,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_03",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_0",
+            "max_distance": 1.442,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_04",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_1",
+            "max_distance": 1.74,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_05",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.77,
+            "satisfied": true
+          }
+        ]
+      }
+    ],
+    "split": "dev",
+    "benchmark_version": "blender-layout-v1",
+    "scene_sha256": "5f8098ef5921f2589f5f06d1640231b5b0db46017a24c6f59058fd355c05b6c2",
+    "evaluation_seconds": 0.1814174999963143,
+    "evaluation_backend": "analytic_aabb",
+    "blender_verified": false
+  }
+}

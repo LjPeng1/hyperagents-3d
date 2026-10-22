@@ -1,0 +1,298 @@
+{
+  "id": "dream_g1_explore_b0_attempt_00",
+  "program": ".\\candidates\\dream_g1_explore_b0_attempt_00\\program.py",
+  "source_sha256": "8eb2a656ea5a36bb18baa71a0e4863e3054520918f5a83d8d596da414335ee5e",
+  "file_sha256": "8eb2a656ea5a36bb18baa71a0e4863e3054520918f5a83d8d596da414335ee5e",
+  "proposal": "# Conflict-directed relation relaxation\n\n## Complete supplied history\nI reviewed all seven supplied proposal files in full: the top-level baseline, both historical baseline copies, and attempts 00 and 01 from both explore_b0 and explore_b1. I also reviewed every supplied source and matching score snapshot. No error logs were supplied.\n\nAll baseline/init copies use identifier-grid placement and parent-centered children. They report combined score 0.6738452380952381, strict success 0, support 1.0, collision freedom 0.9583333333333334, and relation satisfaction 0.21666666666666667. The source establishes structural causes: relations are ignored and siblings can share a center.\n\nexplore_b0/attempt_00 uses difference constraints, collision branching, and angular proximity rectangles; its measured combined score and strict success are both 1.0. explore_b0/attempt_01 adds continuous disk projection and reports the same outcomes. explore_b1/attempt_00 uses centered graph solutions, disk projection, and several greedy directional subsets; it also reports both outcomes as 1.0. explore_b1/attempt_01 adds cross-axis proximity propagation and constrained-first collision branching, again reporting both as 1.0. Their reported evaluation times are approximately 0.178, 0.202, 0.201, and 0.206 seconds respectively. These are analytic AABB observations, with Blender verification false. None is an observed failed solver requiring a bug retry.\n\n## New mechanism\nThe successful attempts cluster around adding geometric constraints, with unchanged observed outcomes. This proposal instead changes how contradictory requests are negotiated: attach relation provenance to graph edges, extract an actual positive-cycle conflict when graph relaxation fails, and branch on retracting each implicated relation. Retraction removes every edge belonging to that relation, including proximity refinements. This replaces irrevocable greedy subset selection with explicit conflict-directed exploration of alternatives.\n\nThe implementation combines that new relation-selection mechanism with the previously successful support-height construction, difference constraints, collision-separation branching, and proximity rectangles. All relations remain part of candidate scoring even after retraction. Geometrically infeasible states never supply coordinates. Room and support constraints remain mandatory during search; collision choices remain branch-specific. A bounded queue search retains its best actual geometric candidate, including partially satisfied arrangements.\n\n## Expected benefit and risk\nConflict-directed retraction may recover better compromises when relation cycles, room limits, or proximity requirements conflict, without enumerating all relation subsets in advance. This is distinct from the historical fixed greedy subset seeds and proximity-propagation refinements. The supplied successful scenes do not establish a benefit for this change.\n\nRisks include exponential conflict branching, finite proximity-angle coverage, numerical sensitivity in cycle extraction, and search truncation. The implementation bounds generated states and expansions, uses only the standard library, and has no scene-specific identifiers or saved coordinates. Impossible room/support geometry receives a best-effort contained fallback. The source has not been executed or evaluated; no performance improvement is claimed.",
+  "dev": {
+    "combined_score": 1.0,
+    "strict_success_rate": 1.0,
+    "valid_scene_rate": 1.0,
+    "components": {
+      "support": 1.0,
+      "collision_free": 1.0,
+      "relations": 1.0
+    },
+    "scenes": [
+      {
+        "id": "dev_00",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.72,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_01",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_3",
+            "max_distance": 1.812,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_02",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_3",
+            "b": "base_2",
+            "max_distance": 1.475,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_03",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_0",
+            "max_distance": 1.442,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_04",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_1",
+            "max_distance": 1.74,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_05",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.77,
+            "satisfied": true
+          }
+        ]
+      }
+    ],
+    "split": "dev",
+    "benchmark_version": "blender-layout-v1",
+    "scene_sha256": "5f8098ef5921f2589f5f06d1640231b5b0db46017a24c6f59058fd355c05b6c2",
+    "evaluation_seconds": 0.17506480000156444,
+    "evaluation_backend": "analytic_aabb",
+    "blender_verified": false
+  }
+}

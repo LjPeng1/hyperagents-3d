@@ -1,4 +1,4 @@
-"""Publish compact audit artifacts without prompts, raw logs or local account paths."""
+"""Publish audit sources and execution requests without raw logs or account paths."""
 from __future__ import annotations
 import argparse
 import json
@@ -67,6 +67,19 @@ def publish(source, destination):
         report['task_invocations'][arm] = {'completed': len(completed),
             'zero_model_calls': sum(c.get('model_episodes') == 0 for c in completed),
             'with_model_call': sum(c.get('model_episodes') == 1 for c in completed)}
+    report['render_verification'] = {}
+    for name in ('e0', 'dream'):
+        render = source / ('render-' + name)
+        if render.exists():
+            target = destination / 'renders' / name
+            target.mkdir(parents=True)
+            for filename in ('layout.png', 'layout.glb', 'reimport_check.json'):
+                shutil.copyfile(render / filename, target / filename)
+            report['render_verification'][name] = read(render / 'reimport_check.json')
+            provenance = render / 'source_provenance.json'
+            if provenance.exists():
+                write(target / provenance.name, clean(read(provenance)))
+                report['render_verification'][name]['source'] = clean(read(provenance))
     write(destination / 'report.json', clean(report))
     write(destination / 'protocol.json', clean(read(source / 'protocol.json')))
     write(destination / 'initial_bundle.json', read(source / 'initial_bundle.json'))

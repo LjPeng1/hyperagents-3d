@@ -1,0 +1,8 @@
+{
+  "step": "hyper_adaptive_online1",
+  "status": "failed",
+  "started_utc": "2026-10-22T18:23:35.748261+00:00",
+  "episode_cap": 2,
+  "ended_utc": "2026-10-22T18:23:35.973168+00:00",
+  "error": "ValueError: One model request is required per invocation"
+}

@@ -1,0 +1,71 @@
+{
+  "created_utc": "2026-10-22T18:12:35.515264+00:00",
+  "frozen": {
+    "version": 1,
+    "task_sha256": {
+      "problem.txt": "ec9d114218a7ce26e5be35576267023f3246ebe37eebcd7e5c8c835c1c864b1d",
+      "init_program.py": "d77e079ab1472ff29930c8510a65468814f3dc69a4a32d1bdb70ba2b8c9c02d7",
+      "scenes.py": "0f9c9c3080c63d5709857ecc970baab29e3f8dc2fa9a0ae6709b385c8b824ea0",
+      "worker.py": "f35592d4fb49edb3d080fa65b0adb1626bc001b75b5adca7048f1a894c8d0659",
+      "evaluator.py": "1cbd4efe92f82b63244d535e14c3ca3c734469154edf5308c27683d1336198db",
+      "export.py": "4a80b1424887c82b36272ac475787df68546278d3c98bbc4f913c866773e91ae"
+    },
+    "timeout_sec": 300,
+    "model_override": "gpt-6-astra",
+    "codex_extra_args": "-c model_reasoning_effort=\\\"medium\\\"",
+    "initial_agent_sha256": {
+      "task": "6893e337edd074bba0525fb114863219a9db2e0f0800a9e54b458468207aa129",
+      "meta": "e9215559e7f1b8269c4a31e592bacb3ed5ae0ac27c33ce5c849826df13137bf6"
+    },
+    "host_sha256": {
+      "portable\\experiment.py": "abc5bb9a3dd607c07b7e5c51c2499854b5c18621329f373a2a5b73f9040143da",
+      "portable\\runtime.py": "c4b92c2bad2b193bd2ef513c5020d54a803f106554d532cd66b76da08a6e937e",
+      "portable\\worker.py": "c4be7679d7cd6da43b3faf8288faabefd210c1d72e4f3b755817b23e6b27c088"
+    },
+    "dream_transport_sha256": {
+      "codex.py": "b8fc76c6b39cce6f91d98d38eca9d00f0bc03d88258396fb6f170a7cfbf5a7c9",
+      "codex_json.py": "2abf1afd843fc08346cb5fd8ab77ad17c80f6d8ab7caeb986cff970b5ce95688"
+    },
+    "dream_core_sha256": {
+      "scripts/run_blender_trial.py": "fd5b5841ec55083ae7da36b8de442cf40cf8c326e797d4fcee1eccb1c2b92e2d",
+      "dream_rsi/orchestrate.py": "48356b1b920fba6ee74aee2e31aea4f97c7597fcbcb38c4a0201adcc53f12c08",
+      "dream_rsi/env/runner.py": "1dbac24cf35912a136098481a7dd85aa2eda4daa7fae6eebe937f7025b9adda3",
+      "dream_rsi/env/trace_env.py": "470e0c558fbae62e86be5ff703c423e654e3f09403fca643b27017c418fb5df6",
+      "dream_rsi/learning/discover.py": "8221ed1fe5be228b981a6111fb98ebc06b7d66067cd9dbaed90a4e88cac08252",
+      "dream_rsi/learning/heuristic_search/workflow.py": "efa2f79c660aa58b4d8ceadd4a0feed6abfa84928096b092ed0d42bb8ee86e66",
+      "dream_rsi/learning/heuristic_search/eval.py": "ed3b0c892f2734282ca2a78e983526a5221e159117310456eace27dabbda4ee7"
+    },
+    "episode_caps": {
+      "e0": 4,
+      "hyper_adaptive_update1": 1,
+      "hyper_adaptive_online1": 2,
+      "hyper_adaptive_update2": 1,
+      "hyper_adaptive_online2": 2,
+      "hyper_fixed_update1": 1,
+      "hyper_fixed_online1": 2,
+      "hyper_fixed_update2": 1,
+      "hyper_fixed_online2": 2,
+      "dream_update1": 1,
+      "dream_online1": 2,
+      "dream_update2": 1,
+      "dream_online2": 2
+    },
+    "total_episode_cap": 22,
+    "max_workers": 1,
+    "grid": {
+      "max_width": 2,
+      "max_refine": 1
+    },
+    "e0_max_steps": 4,
+    "online_max_steps": 2,
+    "policy_rewrites_per_update": 1,
+    "automatic_retries": 0,
+    "backend": "shared Codex transport; structured, tool-forbidden output adapters",
+    "solver_selection": "development combined_score only; ties select later candidate",
+    "hyper_inheritance": "Every valid child bundle is inherited unconditionally, not quality-qualified promotion",
+    "dream_selection": "Official frozen-trace replay reward; official newer-round tie selection",
+    "heldout": "Evaluated only after all three arms finish; never model feedback",
+    "comparison": "End-to-end framework comparison; Hyper mutates task/meta code, DREAM mutates scheduling policy",
+    "budget": "Episode caps are not equal tokens or compute. All failed episodes count; no paid automatic retries."
+  }
+}

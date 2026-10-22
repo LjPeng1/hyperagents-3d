@@ -1,0 +1,7 @@
+{
+  "status": "completed",
+  "request_hashes": [],
+  "model_episodes": 0,
+  "returned_program_sha256": "b3d1aa5dcb2f252dad16d5dacd562fdf88a5f3d2e55c16d670c76adc685016ff",
+  "reason": "Task returned the evaluated incumbent without invoking chat; no log/request/schema directory exists."
+}

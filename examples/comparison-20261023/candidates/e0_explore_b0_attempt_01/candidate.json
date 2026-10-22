@@ -1,0 +1,298 @@
+{
+  "id": "e0_explore_b0_attempt_01",
+  "program": ".\\candidates\\e0_explore_b0_attempt_01\\program.py",
+  "source_sha256": "f82f6aa6eae9b184d681613f88c6bf48bdccf61d3c1c825d45b590e458c887ab",
+  "file_sha256": "f82f6aa6eae9b184d681613f88c6bf48bdccf61d3c1c825d45b590e458c887ab",
+  "proposal": "# Constraint search with continuous disk projection\n\n## Complete supplied history\nI read both supplied proposals in full: baseline/proposal.md and attempt_00/proposal.md, together with all three supplied source files and their matching score files. No additional historical proposal or error log was supplied.\n\nThe baseline and its initialization copy use the same identifier-sorted grid and parent-centered placement. Both measured combined score 0.6738452380952381, strict success 0, support 1.0, collision-free fraction 0.9583333333333334, and relation satisfaction 0.21666666666666667. The source directly explains the repeated sibling collisions and poor directional relations: siblings share their parent's center, and base placement ignores relations. This is a structural limitation, not a failed execution.\n\nAttempt_00 replaces that mechanism with difference constraints, collision-separation branching, and inscribed rectangular bounds for near relations. Its supplied evaluation reports combined score and strict success 1.0 across all six development scenes, with evaluation_seconds 0.17766719999781344. These are analytic AABB results; Blender verification is false. There is no observed failure to repair and no evidence of a plateau across multiple similar attempts.\n\n## New combination\nRetain the successful support geometry, difference-constraint feasibility checks, and disjunctive collision search. Add a continuous convex repair stage using Dykstra projections onto the existing linear constraints and the actual XY distance disks. Unlike the earlier angular rectangles, disk projection can adjust both coordinates continuously without committing to an inscribed rectangle. Projection is attempted when graph coordinates are collision-free but violate proximity. Every projected candidate is independently checked against the graph inequalities before it can influence search or become the incumbent. If projection introduces a collision, the existing separation branches resolve it.\n\nThe original rectangular branches remain available when projection does not produce a better candidate. Nonconvergence is never treated as proof of infeasibility. Projection work has explicit call and sweep limits, and search has a fixed expansion limit.\n\n## Expected benefit and risk\nThe new stage may repair coupled proximity constraints with fewer discrete angle commitments, while retaining the successful graph method. It is a new combination of discrete separation search and exact disk projections, rather than another angular-resolution adjustment. Risks are slow projection convergence near tangencies, additional runtime, and unresolved incompatible relations. The supplied development results establish the previous solver's performance only; this implementation has not been executed or evaluated.",
+  "dev": {
+    "combined_score": 1.0,
+    "strict_success_rate": 1.0,
+    "valid_scene_rate": 1.0,
+    "components": {
+      "support": 1.0,
+      "collision_free": 1.0,
+      "relations": 1.0
+    },
+    "scenes": [
+      {
+        "id": "dev_00",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.72,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_01",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_3",
+            "max_distance": 1.812,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_02",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_3",
+            "b": "base_2",
+            "max_distance": 1.475,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_03",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_1",
+            "b": "base_0",
+            "max_distance": 1.442,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_04",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_2",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_1",
+            "max_distance": 1.74,
+            "satisfied": true
+          }
+        ]
+      },
+      {
+        "id": "dev_05",
+        "valid": true,
+        "combined_score": 1.0,
+        "strict_success": true,
+        "components": {
+          "support": 1.0,
+          "collision_free": 1.0,
+          "relations": 1.0
+        },
+        "collisions": [],
+        "relation_results": [
+          {
+            "type": "left_of",
+            "a": "base_4",
+            "b": "base_0",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_0",
+            "b": "base_3",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_3",
+            "b": "base_1",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "left_of",
+            "a": "base_1",
+            "b": "base_2",
+            "gap": 0.12,
+            "satisfied": true
+          },
+          {
+            "type": "near",
+            "a": "base_4",
+            "b": "base_0",
+            "max_distance": 1.77,
+            "satisfied": true
+          }
+        ]
+      }
+    ],
+    "split": "dev",
+    "benchmark_version": "blender-layout-v1",
+    "scene_sha256": "5f8098ef5921f2589f5f06d1640231b5b0db46017a24c6f59058fd355c05b6c2",
+    "evaluation_seconds": 0.17834530000254745,
+    "evaluation_backend": "analytic_aabb",
+    "blender_verified": false
+  }
+}

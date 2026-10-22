@@ -7,6 +7,7 @@ geometry evaluator and budget. It is not a reproduction of the full native
 DGM-H Docker/tool environment, and it does not establish universal RSI gains.
 
 - [Run the portable 3D comparison](docs/PORTABLE_3D.md)
+- [Completed 3D comparison: results and limitations (Chinese)](docs/RESULTS_20261023.md)
 - [Paper evidence audit (Chinese)](docs/PAPER_AUDIT_ZH.md)
 - [Code and migration audit (Chinese)](docs/CODE_AUDIT_ZH.md)
 - [Third-party attribution](THIRD_PARTY.md)

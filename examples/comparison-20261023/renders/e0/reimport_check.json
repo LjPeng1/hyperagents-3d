@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "blender_version": "4.5.11 LTS",
+  "scene_id": "dev_00",
+  "expected_objects": 8,
+  "imported_objects": 8,
+  "checks": [
+    {
+      "id": "item_2",
+      "passed": true,
+      "size_error": 6.866455076748323e-08,
+      "center_error": 1.0830993613097917e-07,
+      "vertices": 24,
+      "polygons": 12
+    },
+    {
+      "id": "base_4",
+      "passed": true,
+      "size_error": 1.6021728521664613e-07,
+      "center_error": 6.29425049858412e-08,
+      "vertices": 24,
+      "polygons": 12
+    },
+    {
+      "id": "item_1",
+      "passed": true,
+      "size_error": 2.2125244142356948e-07,
+      "center_error": 1.0517578097335445e-07,
+      "vertices": 24,
+      "polygons": 12
+    },
+    {
+      "id": "item_0",
+      "passed": true,
+      "size_error": 1.9073486329235223e-07,
+      "center_error": 1.0381469728315551e-07,
+      "vertices": 24,
+      "polygons": 12
+    },
+    {
+      "id": "base_0",
+      "passed": true,
+      "size_error": 6.866455082299439e-08,
+      "center_error": 1.038146968390663e-07,
+      "vertices": 24,
+      "polygons": 12
+    },
+    {
+      "id": "base_3",
+      "passed": true,
+      "size_error": 8.392333983309186e-08,
+      "center_error": 1.4877319465256278e-07,
+      "vertices": 24,
+      "polygons": 12
+    },
+    {
+      "id": "base_2",
+      "passed": true,
+      "size_error": 4.043579101553618e-07,
+      "center_error": 1.3051757896676008e-07,
+      "vertices": 24,
+      "polygons": 12
+    },
+    {
+      "id": "base_1",
+      "passed": true,
+      "size_error": 3.509521484534872e-07,
+      "center_error": 1.0517578008517603e-07,
+      "vertices": 24,
+      "polygons": 12
+    }
+  ],
+  "verification": "GLB re-imported; world bounding boxes checked against immutable input"
+}
