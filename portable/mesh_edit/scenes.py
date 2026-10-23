@@ -111,7 +111,7 @@ def get_cases(split="dev"):
     if split not in SPLITS:
         raise ValueError("Expected calibration, dev or heldout")
     return [make_case(asset, family, SEEDS[split]+101*ai+17*fi,
-                      f"{split}_{ai*len(FAMILIES)+fi:02d}")
+                      f"case_{ai*len(FAMILIES)+fi:02d}")
             for ai, asset in enumerate(SPLITS[split]) for fi, family in enumerate(FAMILIES)]
 
 

@@ -16,6 +16,8 @@ def test_deterministic_corruption_preserves_protected_region_and_has_no_referenc
     assert first == second and len(first) == 6
     for case in first:
         public = case['public']
+        assert public['id'].startswith('case_')
+        assert not any(split in public['id'] for split in scenes.SPLITS)
         assert set(public) == {'id', 'task', 'vertices', 'faces', 'editable', 'noise_hint'}
         noisy, clean = np.asarray(public['vertices']), np.asarray(case['reference'])
         mask = np.asarray(public['editable'])
