@@ -1,0 +1,22 @@
+{
+  "asset_manifest.json": "550a021119260d3d433973480bb68e8061d0d483aa6173e5becf77c1f3a5727d",
+  "assets/foot_realistic.npz": "a48d5dbd60df07ac590135164795e2708a6ae19f8d892afc19441298db76d269",
+  "assets/foot_stylized.npz": "3ad20dd9053944c82de35c37a17791171009d6e16d59486225034c56b4afbd26",
+  "assets/hand_realistic.npz": "a47b9cdad6638d82dffabd47b3fbffb814b13333de6679437ebe5b81f375679a",
+  "assets/hand_stylized.npz": "76db66c77aea924513020a71f635df36538cc5642c8dbcdf6d077d5d5440a1ff",
+  "assets/head_generic.npz": "8b105f7e8dc084b0a1543d6d306c33bd99f511e268b7105ff11a67b02598456c",
+  "assets/head_planar.npz": "66af80ed0a765bb243a3fc553dad560a147d35c1c6c7bbd196e40bea2fe92206",
+  "assets/jaw_realistic.npz": "7a5fb62d866c62873f53c95fd0d307b52d2c1a0341835f23ed068ee61e2a9cb3",
+  "assets/jaw_stylized.npz": "b5b0dc54d4e91400e63d3a0f6e1c7706e65f5798f245b80cab870c5fe61a82d9",
+  "assets/skull_planar.npz": "8592766ffbf5c469c8402d6b713c8980b2925a6ce321129a3b02582549bffe20",
+  "assets/skull_realistic.npz": "c403486b036536400686f747c287de1c064514bafe02e2d3522a574f189b56e6",
+  "evaluator.py": "cb11941c7f11f5a80c73eac3f8e9d6b031baefd68de2936ad7aabcfa241d88b4",
+  "export.py": "33b5a70ca3a27d043ff93e7738d4d17b8ba5845f392dee81c9b72d3184895366",
+  "init_program.py": "8292b02efbecdaa70d1386aab1bb39064ebbb51caff4d602637c37a2161a8b5d",
+  "preflight.py": "c7e25c321b0616706f57aaa9cf47e736dc04ffd2f35b867af4920228156ecbcc",
+  "prepare_assets.py": "e2fd7e872982dc149455482c75f0207e3494dc5ff3cd7090a225b7ea302430d2",
+  "problem.txt": "3700f631f3d2c652b3db4708017f63697fb14b584f85d6504c6db6e0f5e395a1",
+  "requirements.txt": "8166c46bd31846771cc337dc36b9bc3118090079791c2bb6a140ffb6e9831b2b",
+  "scenes.py": "c8214a65680b32fead69371778f5c5b916c4fcedc3e051353028b2f3c510f180",
+  "worker.py": "f2bdb871153963a526b42bb9b7733dc6409780216dd3e71a7bca586e4fd77f3d"
+}

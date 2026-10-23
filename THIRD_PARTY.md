@@ -18,3 +18,12 @@ is `8ec35bd2538220517ce1bfca4282db21b8c518db`.
 
 The HyperAgents upstream revision audited for this fork is
 `59a68f672dfb92c74aeb7e61535d776fb36e172d`.
+
+The geometry arrays under `portable/mesh_edit/assets/` are derived from the
+[Blender Human Base Meshes v1.4.1 bundle](https://www.blender.org/download/demo-files/#assets).
+These assets retain their separate **CC0-1.0 public-domain dedication**; the
+repository's code license does not impose a new restriction on those assets.
+`portable/mesh_edit/asset_manifest.json` records each original object, author,
+embedded CC0 metadata, source/download hashes, deterministic preprocessing and
+derived file hashes. Textures, materials, shape keys and high-resolution
+modifiers are not included in this geometric benchmark.

@@ -3,3 +3,5 @@ portable/task/*.py -text
 portable/task/*.txt -text
 # Published source snapshots retain their original LF/CRLF bytes for hash audits.
 examples/**/*.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Freeze mesh task source/data bytes across platforms for the published manifest.
+portable/mesh_edit/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

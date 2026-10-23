@@ -65,3 +65,18 @@ class TaskAgent(AgentSystem):
     assert result['program'] == SOLVER
     assert result['model_episodes'] == 0
     assert not (tmp_path / 'zero' / 'logs').exists()
+
+
+@pytest.mark.parametrize('context,expected', [({}, 'blender_layout'), ({'domain': 'mesh_edit'}, 'mesh_edit')])
+def test_runtime_respects_task_domain_without_changing_input(tmp_path, monkeypatch, context, expected):
+    bundle = runtime.initial_bundle()
+    seen = []
+    def fake(role, request, bundle, observed, call_dir):
+        seen.append(observed['domain'])
+        assert expected in request['instruction']
+        return {'proposal': 'mesh or layout program', 'program': SOLVER}
+    monkeypatch.setattr(runtime, '_structured_call', fake)
+    before = context.copy()
+    runtime.generate(bundle, context, tmp_path / 'call')
+    assert seen == [expected]
+    assert context == before

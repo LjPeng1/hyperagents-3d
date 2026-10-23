@@ -1,0 +1,57 @@
+Improve a reusable LOCAL TRIANGLE-MESH REPAIR algorithm, not an answer for one asset.
+Implement solve(scene) -> {"vertices": repaired_N_by_3_list}. Change code only inside
+the EVOLVE block. You may use Python standard mathematical libraries, NumPy and
+SciPy (including sparse/linalg/spatial). Do not use filesystem, network, processes,
+reflection, dynamic code execution, pretrained models, asset libraries or evaluator
+state. No tool use or external data. The host executes your complete source.
+
+The input is a real artist-authored CC0 anatomical base mesh, with synthetic local
+surface corruption. Inputs are JSON arrays:
+  vertices: N by 3 noisy positions, finite floats
+  faces: M by 3 immutable vertex indices forming oriented triangles
+  editable: N booleans; only True vertices may move
+  noise_hint: family (normal_noise, sparse_spikes, mixed_noise), local_edge_scale
+  id: an opaque diagnostic label; never branch on this ID or vertex numbering
+
+Mesh shape, connectivity, resolution, orientation and vertex order vary. Meshes may
+have boundaries or disconnected components. Do not assume watertightness, uniform
+tessellation, a fixed axis, vertex IDs, or a known clean shape. Coordinates have a
+source maximum bounding-box side of 1, followed by an arbitrary proper rotation.
+The editable ROI is a broad connected surface patch: not every vertex inside it is
+corrupted. Outside positions must remain unchanged. Corruption tapers at the ROI
+boundary. Reference geometry, random seeds and exact injected displacement are
+NOT supplied. New anatomical asset families are reserved for final evaluation.
+
+Task: remove local normal noise, isolated spikes and mixed positional artifacts,
+while retaining anatomical creases, thin regions and original surface details.
+Do not blindly smooth all vertices or collapse geometry. Preserve N, vertex order,
+faces, all protected positions and finite output. Return exactly the vertices key;
+faces, metrics or other keys in output are invalid. Return ordinary JSON values.
+
+Evaluation is external and uses the uncorrupted source as a proxy reference. This
+is controlled synthetic-corruption recovery, not free-form text-to-3D generation,
+not an anatomical correctness score, and not a texture/topology-edit benchmark.
+Metrics include editable-area-weighted positional RMSE relative to the noisy input
+error, affected-triangle normal error, protected displacement, new collapses and
+orientation reversals against the reference. The reference never enters feedback
+as coordinates. Only aggregate/per-case development scores and failure metrics
+are returned; calibration and held-out reference meshes cannot be accessed.
+
+Restoration = clip((1 - edited_RMSE / input_RMSE) / 0.75, 0, 1).
+Detail score = min(1, 8 degrees / affected-face mean normal error).
+Combined score multiplies restoration^0.7, detail^0.3, protection and geometry
+factors. Moving any protected vertex by more than 1e-8 invalidates that case.
+Identity has zero restoration; an exact clean reference passes the score ceiling.
+Strict success additionally requires RMSE ratio <=0.35, normal error <=12 degrees,
+and no new degenerate or reference-reversed triangles. Host checks numeric schema
+and geometry directly. Geometry factors decrease linearly to zero at 1% newly
+degenerate or 5% newly reversed affected triangles, relative to the noisy input.
+Inspect individual failure metrics; one scalar does not establish visual quality.
+
+There are 12 development cases across four meshes and three corruption families.
+A separate anatomical-family split is held out. Each case executes in a fresh
+process; the total candidate execution budget across a split is 120 seconds.
+Avoid dense N-by-N matrices: some meshes have more than ten thousand vertices.
+Use local adjacency, sparse operators and bounded iterations. No program state
+persists across cases. The host disallows candidate data-file reads and writes;
+these restrictions and subprocesses are not a full hostile-code OS sandbox.

@@ -11,7 +11,9 @@ from dataclasses import replace
 from datetime import datetime, timezone
 import hashlib
 import importlib.util
+import importlib.metadata
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -21,9 +23,12 @@ from portable import runtime
 
 ROOT = Path(__file__).resolve().parents[1]
 DREAM_ROOT = ROOT.parent / "dream-rsi-3d"
+TASK_NAME = "blender_layout"
 TASK = ROOT / "portable" / "task"
 TASK_MANIFEST = ROOT / "portable" / "task_manifest.json"
-TASK_FILES = ("problem.txt", "init_program.py", "scenes.py", "worker.py", "evaluator.py", "export.py")
+TASK_FILES = tuple(json.loads(TASK_MANIFEST.read_text(encoding="utf-8")))
+CALIBRATION_THRESHOLDS = {"saturation_score": 0.95, "saturation_strict": 0.8, "floor_score": 0.05}
+_PRE_MESH_TIMEOUT = None
 ARMS = ("hyper_adaptive", "hyper_fixed", "dream")
 SCHEDULE = {"e0": 4, **{f"{arm}_{kind}{cycle}": cap for arm in ARMS
                          for cycle in (1, 2) for kind, cap in (("update", 1), ("online", 2))}}
@@ -57,23 +62,67 @@ def load_dream():
 
 
 def load_evaluator():
-    spec = importlib.util.spec_from_file_location("comparison_layout_evaluator", TASK / "evaluator.py")
+    spec = importlib.util.spec_from_file_location(f"comparison_{TASK_NAME}_evaluator", TASK / "evaluator.py")
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 
 
+def select_task(task_name):
+    """Select an immutable task bundle; never rewrite its files or manifest."""
+    global TASK_NAME, TASK, TASK_MANIFEST, TASK_FILES
+    if task_name not in ("blender_layout", "mesh_edit"):
+        raise ValueError(f"Unknown task: {task_name}")
+    TASK_NAME = task_name
+    basename = "task" if task_name == "blender_layout" else "mesh_edit"
+    TASK = ROOT / "portable" / basename
+    TASK_MANIFEST = ROOT / "portable" / f"{basename}_manifest.json"
+    manifest = read(TASK_MANIFEST)
+    if not isinstance(manifest, dict) or not manifest:
+        raise RuntimeError("Task manifest must be a nonempty relative-path to SHA-256 mapping")
+    TASK_FILES = tuple(manifest)
+
+
 def task_hashes():
-    hashes = {name: sha(TASK / name) for name in TASK_FILES}
-    if hashes != read(TASK_MANIFEST):
-        raise RuntimeError("Vendored task differs from its frozen task_manifest.json")
-    other = {name: sha(DREAM_ROOT / "tasks" / "blender_layout" / name) for name in TASK_FILES}
-    if hashes != other:
-        raise RuntimeError("Vendored task differs from DREAM's six frozen task files")
+    manifest = read(TASK_MANIFEST)
+    if not isinstance(manifest, dict) or not manifest:
+        raise RuntimeError("Task manifest must be a nonempty relative-path to SHA-256 mapping")
+    hashes = {}
+    for name, expected in manifest.items():
+        path = Path(name)
+        if (not name or "\\" in name or ":" in name or path.is_absolute()
+                or ".." in path.parts or path.as_posix() != name):
+            raise RuntimeError(f"Unsafe task manifest path: {name!r}")
+        target = TASK / path
+        target.resolve().relative_to(TASK.resolve())
+        current = TASK
+        for part in path.parts:
+            current /= part
+            if current.is_symlink() or (hasattr(current, "is_junction") and current.is_junction()):
+                raise RuntimeError(f"Linked task file is not allowed: {name}")
+        hashes[name] = sha(target)
+        if hashes[name] != expected:
+            raise RuntimeError(f"Vendored task differs from its frozen manifest: {name}")
+    if TASK_NAME == "mesh_edit":
+        required = {"problem.txt", "init_program.py", "evaluator.py", "worker.py", "scenes.py"}
+        if not required.issubset(manifest):
+            raise RuntimeError(f"Mesh manifest omits required task files: {sorted(required - manifest.keys())}")
+        assets = {p.relative_to(TASK).as_posix() for p in (TASK / "assets").rglob("*") if p.is_file()}
+        if not any(name.endswith(".npz") for name in assets):
+            raise RuntimeError("Mesh task requires frozen assets/*.npz data")
+        if assets != {name for name in manifest if name.startswith("assets/")}:
+            raise RuntimeError("Mesh manifest must cover every asset file, including all NPZ bytes")
+    else:
+        other = {name: sha(DREAM_ROOT / "tasks" / "blender_layout" / name) for name in manifest}
+        if hashes != other:
+            raise RuntimeError("Vendored task differs from DREAM's frozen task files")
     return hashes
 
 
-def setup(output, timeout=300):
+def setup(output, timeout=300, task_name="blender_layout"):
+    global _PRE_MESH_TIMEOUT
+    select_task(task_name)
     output = Path(output).resolve()
     # All paid artifacts must remain inside this repository's ignored workspace.
     output.relative_to((ROOT / "workspace").resolve())
@@ -83,14 +132,34 @@ def setup(output, timeout=300):
     os.environ.update({"CODEX_EXEC_TIMEOUT_SEC": str(timeout), "DRSI_REPLAY_MAX_WORKERS": "1",
                        "DRSI_HISTORY_SEED_MODE": "copy", "DRSI_HISTORY_ARCHIVE_FILTER": "all",
                        "DRSI_EVAL_PYTHON": sys.executable})
+    mesh = TASK_NAME == "mesh_edit"
+    if mesh:
+        # One timeout for the complete dev/heldout split, not 120 seconds per mesh.
+        if _PRE_MESH_TIMEOUT is None:
+            _PRE_MESH_TIMEOUT = (os.environ.get("EVALUATOR_TIMEOUT_SECONDS"),)
+        os.environ["EVALUATOR_TIMEOUT_SECONDS"] = "120"
+    elif _PRE_MESH_TIMEOUT is not None:
+        previous, = _PRE_MESH_TIMEOUT
+        if previous is None:
+            os.environ.pop("EVALUATOR_TIMEOUT_SECONDS", None)
+        else:
+            os.environ["EVALUATOR_TIMEOUT_SECONDS"] = previous
+        _PRE_MESH_TIMEOUT = None
+    dependencies = {name: importlib.metadata.version(name) for name in ("numpy", "scipy")} if mesh else {}
     bundle = runtime.initial_bundle()
     frozen = {
-        "version": 1, "task_sha256": task_hashes(), "timeout_sec": timeout,
+        "version": 2, "task_name": TASK_NAME, "task_dir": TASK.relative_to(ROOT).as_posix(),
+        "task_manifest": TASK_MANIFEST.relative_to(ROOT).as_posix(),
+        "task_sha256": task_hashes(), "timeout_sec": timeout,
+        "dependency_versions": dependencies,
+        "evaluation_limits": {"outer_timeout_sec": 180 if mesh else 30,
+                              "split_timeout_sec": 120 if mesh else float(os.environ.get("EVALUATOR_TIMEOUT_SECONDS", "8"))},
+        "calibration_gate": dict(CALIBRATION_THRESHOLDS) if mesh else None,
         "model_override": os.environ.get("CODEX_MODEL"),
         "codex_extra_args": os.environ.get("CODEX_EXTRA_ARGS", ""),
         "initial_agent_sha256": {k: runtime.digest(v) for k, v in bundle.items()},
         "host_sha256": {str(p.relative_to(ROOT)): sha(p) for p in
-                         (Path(__file__), ROOT / "portable" / "runtime.py", ROOT / "portable" / "worker.py")},
+                         (ROOT / "portable" / "experiment.py", ROOT / "portable" / "runtime.py", ROOT / "portable" / "worker.py")},
         "dream_transport_sha256": {name: sha(DREAM_ROOT / "dream_rsi" / "agents" / name)
                                      for name in ("codex.py", "codex_json.py")},
         "dream_core_sha256": {name: sha(DREAM_ROOT / name) for name in (
@@ -119,7 +188,8 @@ def setup(output, timeout=300):
         write(output / "initial_bundle.json", bundle)
     dream = load_dream()
     config = dream.ExploreConfig(problem=TASK / "problem.txt", evaluator=TASK / "evaluator.py",
-                                init_program=TASK / "init_program.py", eval_timeout_sec=30, eval_python=sys.executable)
+                                init_program=TASK / "init_program.py", eval_timeout_sec=180 if mesh else 30,
+                                eval_python=sys.executable)
     cfg = dream.PipelineConfig(
         workspace=output / "e0", agent="codex_json", cycles=2,
         discover_rounds=1, discover_retry_rounds=0, discover_max_retry_batches=0,
@@ -134,6 +204,7 @@ def step(output, name, action):
     """Persist intent before execution. Never infer an interrupted call was free."""
     if name not in SCHEDULE:
         raise ValueError(f"Unknown paid step: {name}")
+    verify_task_snapshot(output)
     journal = output / "journal" / f"{name}.json"
     if journal.exists():
         previous = read(journal)
@@ -144,6 +215,7 @@ def step(output, name, action):
     write(journal, row)
     try:
         result = action()
+        verify_task_snapshot(output)
     except BaseException as exc:
         row.update(status="failed", ended_utc=now(), error=f"{type(exc).__name__}: {exc}")
         write(journal, row)
@@ -153,6 +225,13 @@ def step(output, name, action):
     write(journal, row)
     write(output / "usage.json", collect_usage(output))
     return result
+
+
+def verify_task_snapshot(output):
+    frozen = read(output / "protocol.json")["frozen"]
+    if "task_name" in frozen:
+        if frozen["task_name"] != TASK_NAME or frozen["task_sha256"] != task_hashes():
+            raise RuntimeError("Task changed during the experiment; refusing further execution")
 
 
 def require_step(output, name):
@@ -181,7 +260,7 @@ def best_candidate(candidates):
     return max(enumerate(candidates), key=lambda item: (float(item[1]["dev"]["combined_score"]), item[0]))[1]
 
 
-def dream_candidates(output, name, directory, evaluator):
+def dream_candidates(output, name, directory, evaluator, *, allow_empty=False):
     rows = []
     for score in sorted(directory.glob("explore_b*/attempt_*/eval/score.json")):
         node = score.parent.parent
@@ -191,7 +270,7 @@ def dream_candidates(output, name, directory, evaluator):
             rows.append(candidate(output, f"{name}_{node.parent.name}_{node.name}", program,
                                   proposal.read_text(encoding="utf-8") if proposal.exists() else "",
                                   evaluator.evaluate_split(program, "dev")))
-    if not rows:
+    if not rows and not allow_empty:
         raise RuntimeError(f"No evaluated candidate in {directory}")
     return rows
 
@@ -202,13 +281,78 @@ def phase_e0(output, cfg, dream, evaluator):
         if ws.exists():
             raise RuntimeError("E0 must be fresh, not copied/recovered/resumed")
         dream._bootstrap_workspace(ws, cfg.explore_config)
-        result = dream.checked_round(cfg, ws, 0)
+        if TASK_NAME == "mesh_edit":
+            # A floor outcome is a calibration result, not permission to retry.
+            # The old wrapper rejects all-zero traces before they can be reported.
+            result = dream._run_explore_stage(cfg, ws, label="E0", cycle=0)
+            write(ws / "round_0_result.json", result)
+        else:
+            result = dream.checked_round(cfg, ws, 0)
         initial = candidate(output, "initial", TASK / "init_program.py", "Frozen initial program",
                             evaluator.evaluate_split(TASK / "init_program.py", "dev"))
-        rows = dream_candidates(output, "e0", ws, evaluator)
+        rows = dream_candidates(output, "e0", ws, evaluator, allow_empty=TASK_NAME == "mesh_edit")
+        raw = read(ws / "raw_scores.json")
         return {"round": result, "initial": initial, "candidates": rows,
+                "evaluated_nodes": sum(bool(n.get("raw", {}).get("evaluated")) for n in raw.get("nodes", [])),
                 "best": best_candidate([initial, *rows]), "policy": read(ws / "live_cycle_manifest.json")["policy"]}
-    return step(output, "e0", action)
+    try:
+        result = step(output, "e0", action)
+    except BaseException:
+        if TASK_NAME == "mesh_edit":
+            write(output / "calibration_report.json", {
+                "task_name": TASK_NAME, "split": "dev", "status": "incomplete",
+                "eligible_for_comparison": False, "reason": "E0 did not complete; inspect journal/e0.json. No automatic retry.",
+                "usage": collect_usage(output)})
+        raise
+    if TASK_NAME == "mesh_edit":
+        write(output / "calibration_report.json", {
+            **calibration_decision(result), "task_name": TASK_NAME, "split": "dev", "status": "completed",
+            "task_sha256": read(output / "protocol.json")["frozen"]["task_sha256"],
+            "usage": collect_usage(output),
+            "note": "E0 is a development-set pipeline qualification pilot, not an untouched validation set. The separate calibration split is reserved for non-model geometric probes. No heldout was evaluated."})
+    return result
+
+
+def calibration_decision(e0):
+    """Pure dev-only gate. Recomputed from the journal before either paid arm."""
+    candidates = e0["candidates"]
+    observed = [e0["initial"], *candidates]
+    if any(row["dev"].get("split") != "dev" for row in observed):
+        raise ValueError("Calibration accepts development outcomes only")
+    scores = [float(row["dev"]["combined_score"]) for row in observed]
+    strict_rates = [float(row["dev"].get("strict_success_rate", 0)) for row in observed]
+    if not all(math.isfinite(value) for value in scores + strict_rates):
+        raise ValueError("Calibration requires finite development metrics")
+    score, strict = max(scores), max(strict_rates)
+    saturated = score >= CALIBRATION_THRESHOLDS["saturation_score"] or strict >= CALIBRATION_THRESHOLDS["saturation_strict"]
+    floor = score <= CALIBRATION_THRESHOLDS["floor_score"]
+    errors = sum(bool(row["dev"].get("error")) for row in observed)
+    usable = (not e0["round"].get("failed") and e0.get("evaluated_nodes", 0) >= 2
+              and len(candidates) >= 2 and not errors
+              and any(float(row["dev"]["combined_score"]) > 0 for row in candidates))
+    reasons = []
+    if saturated:
+        reasons.append("development scores are saturated")
+    if floor:
+        reasons.append("development scores are at the floor")
+    if not usable:
+        reasons.append("E0 did not provide at least two evaluated candidates with a positive result and no execution/evaluator failures")
+    return {"best_score": score, "best_strict_success_rate": strict,
+            "saturated": saturated, "floor": floor, "pipeline_usable": bool(usable),
+            "eligible_for_comparison": bool(usable and not saturated and not floor),
+            "thresholds": dict(CALIBRATION_THRESHOLDS), "reasons": reasons,
+            "candidate_count": len(candidates), "evaluated_nodes": e0.get("evaluated_nodes", 0),
+            "evaluator_error_count": errors,
+            "candidates": [{"id": r["id"], "combined_score": r["dev"]["combined_score"],
+                            "strict_success_rate": r["dev"].get("strict_success_rate")} for r in observed]}
+
+
+def require_calibration(output, e0):
+    if TASK_NAME == "mesh_edit":
+        decision = calibration_decision(e0)
+        if not decision["eligible_for_comparison"]:
+            raise RuntimeError("Mesh E0 calibration gate blocks the full comparison: " + "; ".join(decision["reasons"])
+                               + ". No automatic task change or model retry; inspect calibration_report.json.")
 
 
 def observed_context(output, history, iterations_left):
@@ -222,13 +366,14 @@ def observed_context(output, history, iterations_left):
             raise RuntimeError("Observed program changed after evaluation")
         return {"id": row["id"], "program": path.read_text(encoding="utf-8"),
                 "proposal": row["proposal"], "dev": row["dev"]}
-    return {"problem": (TASK / "problem.txt").read_text(encoding="utf-8"),
+    return {"domain": TASK_NAME, "problem": (TASK / "problem.txt").read_text(encoding="utf-8"),
             "initial": observed(initial), "best": observed(best),
             "history": [observed(row) for row in history], "iterations_left": iterations_left}
 
 
 def phase_hyper(output, cfg, dream, evaluator):
     e0 = require_step(output, "e0")
+    require_calibration(output, e0)
     for arm in ("hyper_adaptive", "hyper_fixed"):
         bundle = read(output / "initial_bundle.json")
         history = list(e0["candidates"])
@@ -269,6 +414,7 @@ def phase_hyper(output, cfg, dream, evaluator):
 
 def phase_dream(output, cfg, dream, evaluator):
     e0 = require_step(output, "e0")
+    require_calibration(output, e0)
     ws = output / "dream"
     if not ws.exists():
         shutil.copytree(output / "e0", ws)
@@ -356,6 +502,8 @@ def collect_usage(output):
 
 def phase_report(output, cfg, dream, evaluator):
     e0 = require_step(output, "e0")
+    verify_task_snapshot(output)
+    require_calibration(output, e0)
     rounds = {arm: [require_step(output, f"{arm}_online{cycle}") for cycle in (1, 2)] for arm in ARMS}
     # Validate completed lifecycle before reading any heldout outcomes.
     lifecycle = {}
@@ -394,17 +542,20 @@ def phase_report(output, cfg, dream, evaluator):
                   "Equal episode caps do not equal tokens, wall time or compute. Shared bootstrap cost is listed separately.",
                   "DREAM selects on frozen trace replay; online generations are fresh and need not reproduce counterfactual replay.",
                   "Heldout solver evaluation does not demonstrate policy/meta transfer; local files are not a secure hidden benchmark."]}
+    verify_task_snapshot(output)
     write(output / "report.json", report)
     return report
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "workspace" / "fresh-comparison")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--task", choices=("blender_layout", "mesh_edit"), default="blender_layout")
     parser.add_argument("--phase", choices=("all", "e0", "hyper", "dream", "report"), default="all")
     parser.add_argument("--timeout", type=int, default=300)
     args = parser.parse_args()
-    values = setup(args.output, args.timeout)
+    output = args.output or ROOT / "workspace" / ("fresh-mesh-edit-comparison" if args.task == "mesh_edit" else "fresh-comparison")
+    values = setup(output, args.timeout, args.task)
     for name, function in (("e0", phase_e0), ("hyper", phase_hyper), ("dream", phase_dream), ("report", phase_report)):
         if args.phase in ("all", name):
             print(f"[comparison] {name}", flush=True)

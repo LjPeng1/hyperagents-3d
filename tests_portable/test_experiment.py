@@ -43,6 +43,7 @@ def trial(tmp_path, monkeypatch):
     (task / "problem.txt").write_text("Fixed development geometry problem", encoding="utf-8")
     (task / "init_program.py").write_text("# INITIAL\ndef solve(scene): return {}\n", encoding="utf-8")
     monkeypatch.setattr(ex, "TASK", task)
+    monkeypatch.setattr(ex, "TASK_NAME", "blender_layout")
     bundle = {"task": "T0", "meta": "M0"}
     ex.write(output / "initial_bundle.json", bundle)
     ex.write(output / "protocol.json", {"frozen": {"episode_caps": ex.SCHEDULE}})
@@ -253,6 +254,7 @@ def test_task_hashes_only_six_canonical_files(monkeypatch, tmp_path):
         (upstream / name).write_text(name, encoding="utf-8")
     (task / "LICENSE-APACHE-2.0.txt").write_text("license", encoding="utf-8")
     monkeypatch.setattr(ex, "TASK", task)
+    monkeypatch.setattr(ex, "TASK_NAME", "blender_layout")
     monkeypatch.setattr(ex, "DREAM_ROOT", tmp_path / "dream")
     manifest = tmp_path / "task_manifest.json"
     ex.write(manifest, {name: ex.sha(task / name) for name in ex.TASK_FILES})
@@ -261,3 +263,202 @@ def test_task_hashes_only_six_canonical_files(monkeypatch, tmp_path):
     (task / "evaluator.py").write_text("changed", encoding="utf-8")
     with pytest.raises(RuntimeError, match="differs"):
         ex.task_hashes()
+
+
+@pytest.fixture
+def mesh_trial(trial, monkeypatch):
+    monkeypatch.setattr(ex, "TASK_NAME", "mesh_edit")
+    ex.write(trial.output / "protocol.json", {"frozen": {"episode_caps": ex.SCHEDULE, "task_sha256": {}}})
+    def explore(config, ws, label, cycle):
+        result = trial.dream.checked_round(config, ws, cycle)
+        ex.write(ws / "raw_scores.json", {"nodes": [{"raw": {"evaluated": True}} for _ in range(config.explore_max_steps)]})
+        return result
+    trial.dream._run_explore_stage = explore
+    def set_metrics(score, strict):
+        def evaluate(program, split):
+            trial.evaluator.splits.append(split)
+            return {"combined_score": score, "strict_success_rate": strict, "split": split}
+        trial.evaluator.evaluate_split = evaluate
+    trial.set_metrics = set_metrics
+    set_metrics(0.6, 0.4)
+    return trial
+
+
+@pytest.mark.parametrize("score,strict,saturated,floor", [
+    (0.95, 0.0, True, False), (0.5, 0.8, True, False), (0.05, 0.0, False, True),
+    (0.0, 0.0, False, True), (0.949, 0.799, False, False), (0.051, 0.0, False, False)])
+def test_mesh_dev_calibration_thresholds_and_no_automatic_paid_retry(mesh_trial, score, strict, saturated, floor):
+    t = mesh_trial
+    t.set_metrics(score, strict)
+    ex.phase_e0(*t.args)
+    report = ex.read(t.output / "calibration_report.json")
+    assert report["split"] == "dev" and set(t.evaluator.splits) == {"dev"}
+    assert report["saturated"] is saturated and report["floor"] is floor
+    assert report["eligible_for_comparison"] is (not saturated and not floor)
+    assert report["usage"]["episodes"] == 4
+    before = list(t.events)
+    ex.phase_e0(*t.args)
+    assert t.events == before
+    if saturated or floor:
+        # An edited public summary cannot bypass the journal-derived decision.
+        report["eligible_for_comparison"] = True
+        ex.write(t.output / "calibration_report.json", report)
+        for phase in (ex.phase_hyper, ex.phase_dream):
+            with pytest.raises(RuntimeError, match="calibration gate blocks"):
+                phase(*t.args)
+        assert not t.calls
+        assert not (t.output / "dream").exists()
+        assert ex.collect_usage(t.output)["episodes"] == 4
+
+
+def test_mesh_qualified_e0_continues_same_22_cap_with_mesh_domain(mesh_trial, monkeypatch):
+    t = mesh_trial
+    ex.phase_e0(*t.args)
+    contexts = []
+    original = ex.runtime.improve
+    def inspect(bundle, context, call_dir, freeze_meta):
+        contexts.append(context)
+        assert context["domain"] == "mesh_edit"
+        return original(bundle, context, call_dir, freeze_meta)
+    monkeypatch.setattr(ex.runtime, "improve", inspect)
+    ex.phase_hyper(*t.args)
+    ex.phase_dream(*t.args)
+    assert set(t.evaluator.splits) == {"dev"}
+    report = ex.phase_report(*t.args)
+    assert report["usage"]["episodes"] == 22
+    assert len(contexts) == 4
+
+
+def test_mesh_execution_failure_blocks_despite_midrange_scores(mesh_trial):
+    t = mesh_trial
+    original = t.dream._run_explore_stage
+    def failed(*args, **kwargs):
+        return {**original(*args, **kwargs), "failed": ["b0_a0"]}
+    t.dream._run_explore_stage = failed
+    ex.phase_e0(*t.args)
+    report = ex.read(t.output / "calibration_report.json")
+    assert not report["saturated"] and not report["floor"]
+    assert not report["pipeline_usable"] and not report["eligible_for_comparison"]
+    with pytest.raises(RuntimeError, match="calibration gate blocks"):
+        ex.phase_hyper(*t.args)
+
+
+def test_mesh_failed_phase_writes_incomplete_dev_report_and_refuses_retry(mesh_trial):
+    t = mesh_trial
+    def failed(*args, **kwargs):
+        raise RuntimeError("transport stopped")
+    t.dream._run_explore_stage = failed
+    with pytest.raises(RuntimeError, match="transport stopped"):
+        ex.phase_e0(*t.args)
+    report = ex.read(t.output / "calibration_report.json")
+    assert report["status"] == "incomplete" and report["split"] == "dev"
+    assert not report["eligible_for_comparison"]
+    with pytest.raises(RuntimeError, match="Refusing to repeat"):
+        ex.phase_e0(*t.args)
+
+
+@pytest.fixture
+def setup_tree(tmp_path, monkeypatch):
+    root = tmp_path / "repo"
+    dream = root / "dream-reference"
+    # Register globals for restoration even though setup/select_task assign them.
+    for name in ("TASK_NAME", "TASK", "TASK_MANIFEST", "TASK_FILES", "_PRE_MESH_TIMEOUT"):
+        monkeypatch.setattr(ex, name, getattr(ex, name))
+    monkeypatch.setattr(ex, "ROOT", root)
+    monkeypatch.setattr(ex, "DREAM_ROOT", dream)
+    source_paths = ["portable/experiment.py", "portable/runtime.py", "portable/worker.py"]
+    dream_paths = ["dream_rsi/agents/codex.py", "dream_rsi/agents/codex_json.py", "scripts/run_blender_trial.py",
+                   "dream_rsi/orchestrate.py", "dream_rsi/env/runner.py", "dream_rsi/env/trace_env.py",
+                   "dream_rsi/learning/discover.py", "dream_rsi/learning/heuristic_search/workflow.py",
+                   "dream_rsi/learning/heuristic_search/eval.py"]
+    for base, names in ((root, source_paths), (dream, dream_paths)):
+        for name in names:
+            path = base / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# frozen host\n", encoding="utf-8")
+    files = ("problem.txt", "init_program.py", "scenes.py", "worker.py", "evaluator.py", "export.py")
+    for task_name in ("task", "mesh_edit"):
+        directory = root / "portable" / task_name
+        directory.mkdir()
+        for name in files:
+            (directory / name).write_text(name, encoding="utf-8")
+        if task_name == "mesh_edit":
+            (directory / "assets").mkdir()
+            (directory / "assets" / "source.npz").write_bytes(b"frozen NPZ fixture")
+        manifest = {p.relative_to(directory).as_posix(): ex.sha(p) for p in directory.rglob("*") if p.is_file()}
+        ex.write(root / "portable" / f"{task_name}_manifest.json", manifest)
+    shutil.copytree(root / "portable" / "task", dream / "tasks" / "blender_layout")
+    versions = {"numpy": "2.3.0", "scipy": "1.16.0"}
+    monkeypatch.setattr(ex.importlib.metadata, "version", lambda name: versions[name])
+    monkeypatch.setattr(ex.runtime, "initial_bundle", lambda: {"task": "T0", "meta": "M0"})
+    monkeypatch.setattr(ex, "load_evaluator", lambda: Evaluator())
+    monkeypatch.setattr(ex, "load_dream", lambda: SimpleNamespace(ExploreConfig=lambda **kw: SimpleNamespace(**kw),
+                                                                  PipelineConfig=lambda **kw: SimpleNamespace(**kw)))
+    # Restore the environment changed by setup when this test ends.
+    for name in ("EVALUATOR_TIMEOUT_SECONDS", "CODEX_EXEC_TIMEOUT_SEC", "DRSI_REPLAY_MAX_WORKERS",
+                 "DRSI_HISTORY_SEED_MODE", "DRSI_HISTORY_ARCHIVE_FILTER", "DRSI_EVAL_PYTHON"):
+        monkeypatch.delenv(name, raising=False)
+    return SimpleNamespace(root=root, dream=dream, output=root / "workspace" / "new", versions=versions)
+
+
+def test_mesh_setup_freezes_assets_dependencies_domain_and_limits(setup_tree):
+    t = setup_tree
+    output, cfg, _, _ = ex.setup(t.output, 300, "mesh_edit")
+    frozen = ex.read(output / "protocol.json")["frozen"]
+    assert frozen["task_name"] == "mesh_edit" and frozen["task_dir"] == "portable/mesh_edit"
+    assert frozen["dependency_versions"] == t.versions
+    assert frozen["evaluation_limits"] == {"outer_timeout_sec": 180, "split_timeout_sec": 120}
+    assert "assets/source.npz" in frozen["task_sha256"]
+    assert set(ex.TASK_FILES) == set(frozen["task_sha256"])
+    assert cfg.explore_config.eval_timeout_sec == 180
+    assert ex.os.environ["EVALUATOR_TIMEOUT_SECONDS"] == "120"
+    assert not (t.dream / "tasks" / "mesh_edit").exists()
+    # Completed-stage resumption must still use the originally frozen library versions.
+    t.versions["numpy"] = "changed"
+    with pytest.raises(RuntimeError, match="Frozen protocol"):
+        ex.setup(t.output, 300, "mesh_edit")
+
+
+def test_default_setup_keeps_blender_task_ungated_and_old_timeout(setup_tree):
+    _, cfg, _, _ = ex.setup(setup_tree.output)
+    frozen = ex.read(setup_tree.output / "protocol.json")["frozen"]
+    assert frozen["task_name"] == "blender_layout"
+    assert frozen["calibration_gate"] is None
+    assert cfg.explore_config.eval_timeout_sec == 30
+    assert "EVALUATOR_TIMEOUT_SECONDS" not in ex.os.environ
+    assert frozen["total_episode_cap"] == 22
+
+
+def test_switching_back_to_layout_restores_its_original_timeout(setup_tree, monkeypatch):
+    monkeypatch.setenv("EVALUATOR_TIMEOUT_SECONDS", "17")
+    ex.setup(setup_tree.output, task_name="mesh_edit")
+    assert ex.os.environ["EVALUATOR_TIMEOUT_SECONDS"] == "120"
+    ex.setup(setup_tree.output.with_name("layout"), task_name="blender_layout")
+    assert ex.os.environ["EVALUATOR_TIMEOUT_SECONDS"] == "17"
+
+
+@pytest.mark.parametrize("mutation", ["changed_asset", "new_unlisted_asset", "escape_manifest"])
+def test_mesh_manifest_rejects_changed_or_unlisted_bytes_before_model_calls(setup_tree, mutation):
+    t = setup_tree
+    ex.setup(t.output, task_name="mesh_edit")
+    directory = t.root / "portable" / "mesh_edit"
+    if mutation == "changed_asset":
+        (directory / "assets" / "source.npz").write_bytes(b"modified bytes")
+    elif mutation == "new_unlisted_asset":
+        (directory / "assets" / "unlisted.npz").write_bytes(b"extra")
+    else:
+        manifest = ex.read(ex.TASK_MANIFEST)
+        manifest["../outside.npz"] = "0" * 64
+        ex.write(ex.TASK_MANIFEST, manifest)
+    with pytest.raises((RuntimeError, ValueError), match="differs|every asset|Unsafe"):
+        ex.setup(t.output, task_name="mesh_edit")
+    assert not (t.output / "journal").exists()
+
+
+def test_task_drift_between_steps_is_caught_before_action(setup_tree):
+    t = setup_tree
+    ex.setup(t.output, task_name="mesh_edit")
+    (ex.TASK / "assets" / "source.npz").write_bytes(b"changed during run")
+    with pytest.raises(RuntimeError, match="differs"):
+        ex.step(t.output, "e0", lambda: pytest.fail("Must refuse before calling action"))
+    assert not (t.output / "journal").exists()

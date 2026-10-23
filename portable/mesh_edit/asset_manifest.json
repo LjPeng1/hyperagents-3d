@@ -1,0 +1,779 @@
+{
+  "schema_version": 1,
+  "kind": "cc0_human_base_meshes_fixed_topology",
+  "source_bundle": {
+    "filename": "human_base_meshes_bundle.blend",
+    "sha256": "3c121505651140ceb4d69fd1d8923f7788ffadd81672f5be14845a5f2c75c137",
+    "bytes": 49420489,
+    "download_url": "https://mirror.blender.org/demo/asset-bundles/human-base-meshes/human-base-meshes-bundle-v1.4.1.zip",
+    "archive_sha256": "811f43accbb31a88266d932f8f5563b2d13586fca0ba2693aad1f5fe582b3515",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "exporter": {
+    "script_sha256": "e2fd7e872982dc149455482c75f0207e3494dc5ff3cd7090a225b7ea302430d2",
+    "blender_version": "4.5.11 LTS",
+    "numpy_version": "1.26.4",
+    "source_auto_execution": false
+  },
+  "processing": [
+    "Use original base mesh datablock; do not evaluate any modifiers or add subdivision.",
+    "Apply stored object world transform; triangulate using Blender mesh.calc_loop_triangles.",
+    "Remove exactly zero-area triangles and vertices unreferenced by remaining triangles.",
+    "Do not weld vertices; report exact duplicate coordinates.",
+    "Center source bounding box and divide by its maximum extent, preserving aspect ratio.",
+    "Save deterministic NPZ with vertices float64 and faces int64; no textures or materials."
+  ],
+  "split_note": "Names and split fixed before model outputs; related style variants stay together. This is a small curated body-part collection, not ten independent data sources.",
+  "assets": [
+    {
+      "id": "head_generic",
+      "split": "calibration",
+      "asset_family": "head",
+      "file": "head_generic.npz",
+      "sha256": "8b105f7e8dc084b0a1543d6d306c33bd99f511e268b7105ff11a67b02598456c",
+      "bytes": 7499,
+      "source_object": "Head - Generic Topology",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Paul Kotelevets",
+        "description": "Topology with high flexibility to deform into many designs. Comes with example shape keys attached",
+        "copyright": ""
+      },
+      "source_vertices": 318,
+      "source_polygons": 316,
+      "source_triangulated_faces": 632,
+      "export_vertices": 318,
+      "export_faces": 632,
+      "ignored_modifiers": [
+        {
+          "name": "Subdivision",
+          "type": "SUBSURF"
+        }
+      ],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          0.0,
+          0.03096075728535652,
+          0.0266755148768425
+        ],
+        "divide_by": 0.23401246964931488,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.3673044936514566,
+          -0.47805088360769216,
+          -0.5
+        ],
+        [
+          0.3673044936514566,
+          0.47805088360769216,
+          0.5
+        ]
+      ]
+    },
+    {
+      "id": "head_planar",
+      "split": "calibration",
+      "asset_family": "head",
+      "file": "head_planar.npz",
+      "sha256": "66af80ed0a765bb243a3fc553dad560a147d35c1c6c7bbd196e40bea2fe92206",
+      "bytes": 10025,
+      "source_object": "Head - Planar",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Paul Kotelevets",
+        "description": "Generic topology with planar shapes on a multiresolution modifier",
+        "copyright": ""
+      },
+      "source_vertices": 318,
+      "source_polygons": 316,
+      "source_triangulated_faces": 632,
+      "export_vertices": 318,
+      "export_faces": 632,
+      "ignored_modifiers": [
+        {
+          "name": "Multires",
+          "type": "MULTIRES"
+        }
+      ],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          -2.2351741790771484e-08,
+          0.02868727222084999,
+          0.02366650104522705
+        ],
+        "divide_by": 0.22455695271492004,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.375091424801533,
+          -0.4721078375358549,
+          -0.5
+        ],
+        [
+          0.375091424801533,
+          0.4721078375358549,
+          0.5
+        ]
+      ]
+    },
+    {
+      "id": "hand_realistic",
+      "split": "dev",
+      "asset_family": "hand",
+      "file": "hand_realistic.npz",
+      "sha256": "a47b9cdad6638d82dffabd47b3fbffb814b13333de6679437ebe5b81f375679a",
+      "bytes": 26751,
+      "source_object": "Hand  - Realistic",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Dan Ulrich",
+        "description": "Realistic scan data model with multiresolution details",
+        "copyright": ""
+      },
+      "source_vertices": 831,
+      "source_polygons": 820,
+      "source_triangulated_faces": 1658,
+      "export_vertices": 831,
+      "export_faces": 1658,
+      "ignored_modifiers": [
+        {
+          "name": "Multires",
+          "type": "MULTIRES"
+        }
+      ],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          0.018757343292236328,
+          0.0018924092873930931,
+          -0.0633464939892292
+        ],
+        "divide_by": 0.2826323136687279,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.26568147474682985,
+          -0.11448160116023857,
+          -0.5
+        ],
+        [
+          0.26568147474682985,
+          0.11448160116023857,
+          0.5
+        ]
+      ]
+    },
+    {
+      "id": "hand_stylized",
+      "split": "dev",
+      "asset_family": "hand",
+      "file": "hand_stylized.npz",
+      "sha256": "76db66c77aea924513020a71f635df36538cc5642c8dbcdf6d077d5d5440a1ff",
+      "bytes": 29104,
+      "source_object": "Hand - Stylized ",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Julien Kaspar",
+        "description": "Generic stylized hand topology",
+        "copyright": ""
+      },
+      "source_vertices": 871,
+      "source_polygons": 880,
+      "source_triangulated_faces": 1738,
+      "export_vertices": 871,
+      "export_faces": 1738,
+      "ignored_modifiers": [],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          0.01640666276216507,
+          0.010772079229354858,
+          -0.11712045670719817
+        ],
+        "divide_by": 0.23510417935904115,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.282089178450698,
+          -0.1443285224011058,
+          -0.5
+        ],
+        [
+          0.282089178450698,
+          0.1443285224011058,
+          0.5
+        ]
+      ]
+    },
+    {
+      "id": "jaw_realistic",
+      "split": "dev",
+      "asset_family": "jaw",
+      "file": "jaw_realistic.npz",
+      "sha256": "7a5fb62d866c62873f53c95fd0d307b52d2c1a0341835f23ed068ee61e2a9cb3",
+      "bytes": 142732,
+      "source_object": "Jaw - Realistic",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Dan Ulrich",
+        "description": "Realistic scan data model with multiresolution details",
+        "copyright": ""
+      },
+      "source_vertices": 5294,
+      "source_polygons": 5058,
+      "source_triangulated_faces": 10472,
+      "export_vertices": 5294,
+      "export_faces": 10472,
+      "ignored_modifiers": [],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          0.0,
+          0.017118994146585464,
+          0.002959686331450939
+        ],
+        "divide_by": 0.10184695571660995,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.3679467831952307,
+          -0.5,
+          -0.28559778559346033
+        ],
+        [
+          0.3679467831952307,
+          0.5,
+          0.28559778559346033
+        ]
+      ]
+    },
+    {
+      "id": "jaw_stylized",
+      "split": "dev",
+      "asset_family": "jaw",
+      "file": "jaw_stylized.npz",
+      "sha256": "b5b0dc54d4e91400e63d3a0f6e1c7706e65f5798f245b80cab870c5fe61a82d9",
+      "bytes": 145237,
+      "source_object": "Jaw - Stylized ",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Julien Kaspar",
+        "description": "Generic stylized inner mouth topology",
+        "copyright": ""
+      },
+      "source_vertices": 6566,
+      "source_polygons": 6308,
+      "source_triangulated_faces": 12616,
+      "export_vertices": 6566,
+      "export_faces": 12616,
+      "ignored_modifiers": [],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          0.0,
+          -0.0003664530813694,
+          0.03207029215991497
+        ],
+        "divide_by": 0.10246574133634567,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.37620073528732756,
+          -0.5,
+          -0.3062626561336707
+        ],
+        [
+          0.37620073528732756,
+          0.5,
+          0.3062626561336707
+        ]
+      ]
+    },
+    {
+      "id": "foot_realistic",
+      "split": "heldout",
+      "asset_family": "foot",
+      "file": "foot_realistic.npz",
+      "sha256": "a48d5dbd60df07ac590135164795e2708a6ae19f8d892afc19441298db76d269",
+      "bytes": 48289,
+      "source_object": "Foot - Realistic",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Dan Ulrich",
+        "description": "Realistic scan data model with multiresolution details",
+        "copyright": ""
+      },
+      "source_vertices": 1497,
+      "source_polygons": 1481,
+      "source_triangulated_faces": 2990,
+      "export_vertices": 1497,
+      "export_faces": 2990,
+      "ignored_modifiers": [
+        {
+          "name": "Multires",
+          "type": "MULTIRES"
+        }
+      ],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          0.011615455150604248,
+          -0.07547865808010101,
+          -0.016767147928476334
+        ],
+        "divide_by": 0.2359498143196106,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.19322049997208596,
+          -0.5,
+          -0.3774987015549259
+        ],
+        [
+          0.19322049997208596,
+          0.5,
+          0.3774987015549259
+        ]
+      ]
+    },
+    {
+      "id": "foot_stylized",
+      "split": "heldout",
+      "asset_family": "foot",
+      "file": "foot_stylized.npz",
+      "sha256": "3ad20dd9053944c82de35c37a17791171009d6e16d59486225034c56b4afbd26",
+      "bytes": 25645,
+      "source_object": "Foot - Stylized ",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Julien Kaspar",
+        "description": "Generic stylized foot topology",
+        "copyright": ""
+      },
+      "source_vertices": 786,
+      "source_polygons": 798,
+      "source_triangulated_faces": 1568,
+      "export_vertices": 786,
+      "export_faces": 1568,
+      "ignored_modifiers": [],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          0.004547398537397385,
+          -0.07253041118383408,
+          -0.05046265199780464
+        ],
+        "divide_by": 0.23699535429477692,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.21102050182184415,
+          -0.5,
+          -0.2287492072206784
+        ],
+        [
+          0.21102050182184415,
+          0.5,
+          0.2287492072206784
+        ]
+      ]
+    },
+    {
+      "id": "skull_realistic",
+      "split": "heldout",
+      "asset_family": "skull",
+      "file": "skull_realistic.npz",
+      "sha256": "c403486b036536400686f747c287de1c064514bafe02e2d3522a574f189b56e6",
+      "bytes": 349342,
+      "source_object": "Skull - Realistic",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Paul Kotelevets, Tonatiuh de San Julián",
+        "description": "Realistic scan data model with multiresolution details",
+        "copyright": ""
+      },
+      "source_vertices": 11684,
+      "source_polygons": 11634,
+      "source_triangulated_faces": 23268,
+      "export_vertices": 11682,
+      "export_faces": 23268,
+      "ignored_modifiers": [
+        {
+          "name": "Multires",
+          "type": "MULTIRES"
+        }
+      ],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 2,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          -7.450580596923828e-09,
+          0.0216013602912426,
+          0.006999611854553223
+        ],
+        "divide_by": 0.22640562057495117,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.332255691523082,
+          -0.4683480768238463,
+          -0.5
+        ],
+        [
+          0.332255691523082,
+          0.4683480768238463,
+          0.5
+        ]
+      ]
+    },
+    {
+      "id": "skull_planar",
+      "split": "heldout",
+      "asset_family": "skull",
+      "file": "skull_planar.npz",
+      "sha256": "8592766ffbf5c469c8402d6b713c8980b2925a6ce321129a3b02582549bffe20",
+      "bytes": 22661,
+      "source_object": "Skull - Planar",
+      "license_metadata": {
+        "license": "CC0",
+        "author": "Tonatiuh de San Julián",
+        "description": "Hard surface model with subdivision modifier.",
+        "copyright": ""
+      },
+      "source_vertices": 900,
+      "source_polygons": 898,
+      "source_triangulated_faces": 1796,
+      "export_vertices": 900,
+      "export_faces": 1796,
+      "ignored_modifiers": [
+        {
+          "name": "Subdivision",
+          "type": "SUBSURF"
+        }
+      ],
+      "removed_zero_area_triangles": 0,
+      "removed_loose_vertices": 0,
+      "exact_duplicate_coordinate_vertices": 0,
+      "welded_vertices": 0,
+      "source_world_matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "normalization": {
+        "center_world": [
+          5.550682544708252e-07,
+          0.02280835062265396,
+          0.028643421828746796
+        ],
+        "divide_by": 0.21478457748889923,
+        "target_max_bbox_extent": 1.0
+      },
+      "bbox": [
+        [
+          -0.3238502335480721,
+          -0.4735481927957425,
+          -0.5
+        ],
+        [
+          0.3238502335480721,
+          0.4735481927957425,
+          0.5
+        ]
+      ]
+    }
+  ]
+}

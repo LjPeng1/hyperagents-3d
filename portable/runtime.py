@@ -152,7 +152,7 @@ def _invoke(role, bundle, context, call_dir):
                                          'meta_sha256': digest(bundle['meta'])})
     write_json(call_dir / 'input_bundle.json', bundle)
     context = copy.deepcopy(context)
-    context['domain'] = 'blender_layout'
+    context.setdefault('domain', 'blender_layout')
     first = _worker(role, bundle[role], context, [])
     if role == 'task' and first['status'] == 'completed' and first.get('request_hashes') == []:
         result = first.get('result')

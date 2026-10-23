@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 .pytest_cache/
 portable/task/.runtime/
+portable/mesh_edit/.runtime/
